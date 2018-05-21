@@ -12,6 +12,13 @@ document.head.insertAdjacentHTML('beforeend', `
     [data-testid="sidebarColumn"] {
       margin: 0 !important;
     }
+    [data-testid="sidebarColumn"] > div > div {
+      width: 320px !important;
+    }
+    [data-testid="primaryColumn"],
+    [data-testid="primaryColumn"]  > div > div {
+      max-width: 640px !important;
+    }
     [data-testid="fab-tweet"] {
       right: -299px !important;
       width: 80px !important;
