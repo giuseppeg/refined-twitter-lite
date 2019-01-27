@@ -25,7 +25,7 @@
   }
 
   let currentUrl = window.location.href
-  document.documentElement.addEventListener('DOMNodeInserted', () => {
+  document.body.addEventListener('DOMNodeInserted', () => {
     if (window.location.href === currentUrl) {
       return
     }
