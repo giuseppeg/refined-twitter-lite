@@ -59,10 +59,9 @@
     obfuscateName: {
       default: true,
       styles: [
-        `[data-testid="tweet"] [href^="/"] span[dir] {
-            background-color: currentColor;
-            border-radius: 3px;
-            opacity: 0.9;
+        `[data-testid="tweet"] [href^="/"]:not([aria-hidden]):not([href*="/status/"]),
+         [data-testid="UserCell"] [href^="/"]:not([href*="/status/"]) {
+            filter: blur(3px)
          }
         `
       ]
@@ -70,7 +69,8 @@
     hideName: {
       default: false,
       styles: [
-        `[data-testid="tweet"] [href^="/"] span[dir] {
+        `[data-testid="tweet"] [href^="/"]:not([aria-hidden]):not([href*="/status/"]),
+         [data-testid="UserCell"] [href^="/"]:not([href*="/status/"]) {
             display: none
          }
         `
