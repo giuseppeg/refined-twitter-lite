@@ -5,7 +5,7 @@ Refined Twitter Lite comes with a set of features that can be enabled or disable
 ```js
 setRefinedTwitterLiteFeatures({
   hideAvatars: true,
-  singleColum: false,
+  singleColumn: false,
 })
 ```
 
