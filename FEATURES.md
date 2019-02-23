@@ -1,6 +1,6 @@
 # Refined Twitter Lite
 
-Refined Twitter Lite comes with a set of features that can be enabled or disabled via the global `setRefinedTwitterLiteFeatures`.
+Refined Twitter Lite comes with a set of features that can be enabled or disabled via the global `setRefinedTwitterLiteFeatures` function.
 
 ```js
 setRefinedTwitterLiteFeatures({
@@ -11,11 +11,11 @@ setRefinedTwitterLiteFeatures({
 
 ## Features
 
-### singleColum
+### singleColumn
 
 default: `true`
 
-Hide the sidebar for every page that has a timeline.
+Hides the sidebar for every page that has a timeline.
 
 ### composeButtonTextCursor
 
