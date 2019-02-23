@@ -61,7 +61,7 @@
       default: false,
       styles: [
         `[data-testid="tweet"] [href^="/"]:not([aria-hidden]):not([href*="/status/"]),
-         [data-testid="UserCell"] [href^="/"]:not([href*="/status/"]) {
+         [data-testid="UserCell"] [href^="/"]:not([aria-hidden]):not([href*="/status/"]) {
             filter: blur(3px)
          }
         `
@@ -71,7 +71,7 @@
       default: false,
       styles: [
         `[data-testid="tweet"] [href^="/"]:not([aria-hidden]):not([href*="/status/"]),
-         [data-testid="UserCell"] [href^="/"]:not([href*="/status/"]) {
+         [data-testid="UserCell"] [href^="/"]:not([aria-hidden]):not([href*="/status/"]) {
             display: none
          }
         `
