@@ -1,47 +1,163 @@
 // ==UserScript==
 // @name refined-twitter-lite
 // @description Small UserScript that adds some UI improvements to Twitter Lite
-// @version 0.2.1
+// @version 0.2.2
 // @match https://*.twitter.com/*
-// @grant none
 // ==/UserScript==
 (function () {
+  // Supported features.
+  // Can optionally define a test function that must return a boolean.
   const features = {
-    singleColumn: (parsedUrl, title) => {
-      return /^((?!messages|settings).)*$/.test(parsedUrl.pathname)
+    singleColumn: {
+      default: true,
+      test: ({ parsedUrl }) => {
+        return /^((?!messages|settings).)*$/.test(parsedUrl.pathname)
+      },
+      styles: [
+        '[data-testid="sidebarColumn"] { display: none }',
+        '.rn-1ye8kvj { min-width: 678px }'
+      ]
+    },
+    composeButtonTextCursor: {
+      default: true,
+      styles: [
+        `[href="/compose/tweet"] [dir] { cursor: text }`
+      ]
+    },
+    hideLikeCount: {
+      default: false,
+      styles: [
+        `[href$="/likes"],
+         [data-testid="like"] span,
+         [data-testid="unlike"] span {
+            display: none
+         }`
+      ]
+    },
+    hideRetweetCount: {
+      default: false,
+      styles: [
+        `[href$="/retweets"],
+         [data-testid="retweet"] span,
+         [data-testid="unretweet"] span {
+            display: none
+         }`
+      ]
+    },
+    hideReplyCount: {
+      default: false,
+      styles: [
+        `[data-testid="reply"] span { display: none }`
+      ]
+    },
+    hideAvatars: {
+      default: false,
+      styles: [
+        `[style*="/profile_images/"] { display: none }`
+      ]
+    },
+    obfuscateHandlesAndUserNames: {
+      default: false,
+      styles: [
+        `[data-testid="tweet"] [href^="/"]:not([aria-hidden]):not([href*="/status/"]),
+         [data-testid="UserCell"] [href^="/"]:not([aria-hidden]):not([href*="/status/"]) {
+            filter: blur(3px)
+         }
+        `
+      ]
+    },
+    hideHandlesAndUserNames: {
+      default: false,
+      styles: [
+        `[data-testid="tweet"] [href^="/"]:not([aria-hidden]):not([href*="/status/"]),
+         [data-testid="UserCell"] [href^="/"]:not([aria-hidden]):not([href*="/status/"]) {
+            display: none
+         }
+        `
+      ]
     }
   }
 
-  function setFeatures(features) {
-    document.documentElement.setAttribute('data-refined-twitter-lite', features.join(' '))
-  }
-
-  function onNavigate(url) {
-    const parsedUrl = document.createElement('a')
-    parsedUrl.href = url
-    setFeatures(
-      Object.keys(features).filter(feature => features[feature](parsedUrl, document.title || ''))
-    )
-  }
-
-  let currentUrl = window.location.href
-  document.body.addEventListener('DOMNodeInserted', () => {
-    if (window.location.href === currentUrl) {
-      return
-    }
-    currentUrl = window.location.href
-    onNavigate(currentUrl)
-  })
-  onNavigate(currentUrl)
-
+  // Generate and append the styles.
   document.head.insertAdjacentHTML('beforeend', `
     <style>
-      [data-refined-twitter-lite~="singleColumn"] [data-testid="sidebarColumn"] {
-        display: none;
-      }
-      [data-refined-twitter-lite~="singleColumn"] .rn-1ye8kvj {
-        min-width: 678px;
-      }
+      ${Object.entries(features).map(([feature, data]) =>
+        data.styles.map(rule =>
+          rule.split(',').map(rule =>
+            `[data-refined-twitter-lite~="${feature}"] ${rule.trim()}`
+          ).join(',')
+        ).join('')
+      ).join("\n")}
     </style>
   `)
+
+  // Settings are saved to localStorage and merged with the default on load.
+  const storageKey = 'refined-twitter-lite'
+  let settings = {}
+  const storedSettings = JSON.parse(localStorage.getItem(storageKey)) || {}
+  settings = Object.keys(features).reduce((settings, feature) => {
+    if (typeof storedSettings[feature] === 'boolean') {
+      settings[feature] = storedSettings[feature]
+    } else {
+      settings[feature] = features[feature].default
+    }
+    return settings
+  }, {})
+
+  let initCleanupFunctions = []
+
+  function setFeatures() {
+    initCleanupFunctions.forEach(cleanupFunction => cleanupFunction())
+    initCleanupFunctions = []
+
+    const parsedUrl = document.createElement('a')
+    parsedUrl.href = window.location.href
+
+    const enabledFeatures = Object.keys(features).filter(feature =>
+      settings[feature] &&
+      (!features[feature].test ||
+      features[feature].test({ parsedUrl, title: document.title || '' }))
+    )
+    document.documentElement.setAttribute('data-refined-twitter-lite', enabledFeatures.join(' '))
+
+    // Features can define an init function that is called every time setFeatures is invoked.
+    enabledFeatures.forEach(featureName => {
+      const feature = features[featureName]
+      if (typeof feature.init === 'function') {
+        const cleanupFunction = feature.init()
+        if (typeof cleanupFunction !== 'function') {
+          throw new Error(
+            'Refined Twitter Lite: the feature.init function must return a cleanup function.'
+          )
+        }
+        initCleanupFunctions.push(cleanupFunction)
+      }
+    })
+  }
+
+  // Watch for changes to the DOM to detect page navigation.
+  // TODO: refactor to use the history API as this is a workaround right now.
+  let prevUrl = window.location.href
+  document.body.addEventListener('DOMNodeInserted', () => {
+    if (window.location.href !== prevUrl) {
+      setFeatures()
+      prevUrl = window.location.href
+    }
+  })
+
+  // Customize/Save settings API
+  // setRefinedTwitterLiteFeatures is available to the user
+  // and can be called with the new settings object (can be partial).
+  // New settings are merged with the current ones.
+  window.setRefinedTwitterLiteFeatures = features => {
+    settings = Object.assign(settings, features)
+    localStorage.setItem(storageKey, JSON.stringify(settings))
+    setFeatures()
+  }
+
+  window.addEventListener('beforeunload', () => {
+    setRefinedTwitterLiteFeatures(settings)
+  })
+
+  setFeatures()
 }())
