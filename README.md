@@ -13,3 +13,5 @@ Small UserScript that adds some UI improvements to Twitter Lite. Totally inspire
 * enjoy 🍸
 
 For a comprehensive list of tweaks check the [features page](./FEATURES.md).
+
+Note that right now Refined Twitter Lite is a UserScript and therefore needs to be updated manually every once a while.
