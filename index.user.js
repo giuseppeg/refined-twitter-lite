@@ -6,11 +6,12 @@
 // @grant none
 // ==/UserScript==
 (function () {
-  let prevUrl = window.location.href
+  // Supported features.
+  // Can optionally define a test function that must return a boolean.
   const features = {
     singleColumn: {
       default: true,
-      test: (parsedUrl, title) => {
+      test: ({ parsedUrl }) => {
         return /^((?!messages|settings).)*$/.test(parsedUrl.pathname)
       },
       styles: [
@@ -25,7 +26,7 @@
       ]
     },
     hideLikeCount: {
-      default: true,
+      default: false,
       styles: [
         `[href$="/likes"],
          [data-testid="like"] span,
@@ -35,7 +36,7 @@
       ]
     },
     hideRetweetCount: {
-      default: true,
+      default: false,
       styles: [
         `[href$="/retweets"],
          [data-testid="retweet"] span,
@@ -45,19 +46,19 @@
       ]
     },
     hideReplyCount: {
-      default: true,
+      default: false,
       styles: [
         `[data-testid="reply"] span { display: none }`
       ]
     },
     hideAvatars: {
-      default: true,
+      default: false,
       styles: [
         `[style*="/profile_images/"] { display: none }`
       ]
     },
-    obfuscateName: {
-      default: true,
+    obfuscateHandlesAndUserNames: {
+      default: false,
       styles: [
         `[data-testid="tweet"] [href^="/"]:not([aria-hidden]):not([href*="/status/"]),
          [data-testid="UserCell"] [href^="/"]:not([href*="/status/"]) {
@@ -66,7 +67,7 @@
         `
       ]
     },
-    hideName: {
+    hideHandlesAndUserNames: {
       default: false,
       styles: [
         `[data-testid="tweet"] [href^="/"]:not([aria-hidden]):not([href*="/status/"]),
@@ -78,31 +79,7 @@
     }
   }
 
-  const storageKey = 'refined-twitter-lite'
-  let settings = {}
-  const storedSettings = JSON.parse(localStorage.getItem(storageKey)) || {}
-  settings = Object.keys(features).reduce((settings, feature) => {
-    if (typeof storedSettings[feature] === 'boolean') {
-      settings[feature] = storedSettings[feature]
-    } else {
-      settings[feature] = features[feature].default
-    }
-    return settings
-  }, {})
-  console.log(storedSettings)
-
-  function setFeatures() {
-    const parsedUrl = document.createElement('a')
-    parsedUrl.href = window.location.href
-
-    const enabledFeatures = Object.keys(features).filter(feature =>
-      settings[feature] &&
-      (!features[feature].test ||
-      features[feature].test(parsedUrl, document.title || ''))
-    )
-    document.documentElement.setAttribute('data-refined-twitter-lite', enabledFeatures.join(' '))
-  }
-
+  // Generate and append the styles.
   document.head.insertAdjacentHTML('beforeend', `
     <style>
       ${Object.entries(features).map(([feature, data]) =>
@@ -115,6 +92,34 @@
     </style>
   `)
 
+  // Settings are saved to localStorage and merged with the default on load.
+  const storageKey = 'refined-twitter-lite'
+  let settings = {}
+  const storedSettings = JSON.parse(localStorage.getItem(storageKey)) || {}
+  settings = Object.keys(features).reduce((settings, feature) => {
+    if (typeof storedSettings[feature] === 'boolean') {
+      settings[feature] = storedSettings[feature]
+    } else {
+      settings[feature] = features[feature].default
+    }
+    return settings
+  }, {})
+
+  function setFeatures() {
+    const parsedUrl = document.createElement('a')
+    parsedUrl.href = window.location.href
+
+    const enabledFeatures = Object.keys(features).filter(feature =>
+      settings[feature] &&
+      (!features[feature].test ||
+      features[feature].test({ parsedUrl, title: document.title || '' }))
+    )
+    document.documentElement.setAttribute('data-refined-twitter-lite', enabledFeatures.join(' '))
+  }
+
+  // Watch for changes to the DOM to detect page navigation.
+  // TODO: refactor to use the history API as this is a workaround right now.
+  let prevUrl = window.location.href
   document.body.addEventListener('DOMNodeInserted', () => {
     if (window.location.href !== prevUrl) {
       setFeatures()
@@ -124,9 +129,15 @@
   setFeatures()
 
   // Customize/Save settings API
-
+  // setRefinedTwitterLiteFeatures is available to the user and can be called with:
+  // - the new settings object (can be partial)
+  // - a function that gets the current settings and must return the new ones (can be partial)
+  // new settings are merged with the current ones.
   window.setRefinedTwitterLiteFeatures = features => {
-    settings = Object.assign(settings, features)
+    settings = Object.assign(
+      settings,
+      typeof features === 'function' ? features(settings) || {} : features
+    )
     localStorage.setItem(storageKey, JSON.stringify(settings))
     setFeatures()
   }
