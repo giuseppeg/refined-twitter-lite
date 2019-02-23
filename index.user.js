@@ -3,7 +3,6 @@
 // @description Small UserScript that adds some UI improvements to Twitter Lite
 // @version 0.2.2
 // @match https://*.twitter.com/*
-// @grant none
 // ==/UserScript==
 (function () {
   // Supported features.
@@ -105,7 +104,12 @@
     return settings
   }, {})
 
+  let initCleanupFunctions = []
+
   function setFeatures() {
+    initCleanupFunctions.forEach(cleanupFunction => cleanupFunction())
+    initCleanupFunctions = []
+
     const parsedUrl = document.createElement('a')
     parsedUrl.href = window.location.href
 
@@ -115,6 +119,20 @@
       features[feature].test({ parsedUrl, title: document.title || '' }))
     )
     document.documentElement.setAttribute('data-refined-twitter-lite', enabledFeatures.join(' '))
+
+    // Features can define an init function that is called every time setFeatures is invoked.
+    enabledFeatures.forEach(featureName => {
+      const feature = features[featureName]
+      if (typeof feature.init === 'function') {
+        const cleanupFunction = feature.init()
+        if (typeof cleanupFunction !== 'function') {
+          throw new Error(
+            'Refined Twitter Lite: the feature.init function must return a cleanup function.'
+          )
+        }
+        initCleanupFunctions.push(cleanupFunction)
+      }
+    })
   }
 
   // Watch for changes to the DOM to detect page navigation.
@@ -126,18 +144,13 @@
       prevUrl = window.location.href
     }
   })
-  setFeatures()
 
   // Customize/Save settings API
-  // setRefinedTwitterLiteFeatures is available to the user and can be called with:
-  // - the new settings object (can be partial)
-  // - a function that gets the current settings and must return the new ones (can be partial)
-  // new settings are merged with the current ones.
+  // setRefinedTwitterLiteFeatures is available to the user
+  // and can be called with the new settings object (can be partial).
+  // New settings are merged with the current ones.
   window.setRefinedTwitterLiteFeatures = features => {
-    settings = Object.assign(
-      settings,
-      typeof features === 'function' ? features(settings) || {} : features
-    )
+    settings = Object.assign(settings, features)
     localStorage.setItem(storageKey, JSON.stringify(settings))
     setFeatures()
   }
@@ -145,4 +158,6 @@
   window.addEventListener('beforeunload', () => {
     setRefinedTwitterLiteFeatures(settings)
   })
+
+  setFeatures()
 }())

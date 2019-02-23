@@ -9,6 +9,10 @@ setRefinedTwitterLiteFeatures({
 })
 ```
 
+Right now this function is only available within the refined-twitter-lite frame.
+
+<img height="300" alt="select the refined-twitter-lite frame to use the setRefinedTwitterLiteFeatures function" src="https://user-images.githubusercontent.com/711311/53285685-c224ea80-3763-11e9-9106-a9933cdb40ca.png">
+
 ## Features
 
 ### singleColumn
