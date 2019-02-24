@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name refined-twitter-lite
 // @description Small UserScript that adds some UI improvements to Twitter Lite
-// @version 0.2.2
+// @version 0.2.3
 // @match https://*.twitter.com/*
 // ==/UserScript==
 (function () {
@@ -15,7 +15,7 @@
       },
       styles: [
         '[data-testid="sidebarColumn"] { display: none }',
-        '.rn-1ye8kvj { min-width: 678px }'
+        '.rn-1ye8kvj { min-width: 675px }'
       ]
     },
     composeButtonTextCursor: {
@@ -106,12 +106,12 @@
 
   let initCleanupFunctions = []
 
-  function setFeatures() {
+  function setFeatures(url = window.location.href) {
     initCleanupFunctions.forEach(cleanupFunction => cleanupFunction())
     initCleanupFunctions = []
 
     const parsedUrl = document.createElement('a')
-    parsedUrl.href = window.location.href
+    parsedUrl.href = url
 
     const enabledFeatures = Object.keys(features).filter(feature =>
       settings[feature] &&
@@ -135,16 +135,6 @@
     })
   }
 
-  // Watch for changes to the DOM to detect page navigation.
-  // TODO: refactor to use the history API as this is a workaround right now.
-  let prevUrl = window.location.href
-  document.body.addEventListener('DOMNodeInserted', () => {
-    if (window.location.href !== prevUrl) {
-      setFeatures()
-      prevUrl = window.location.href
-    }
-  })
-
   // Customize/Save settings API
   // setRefinedTwitterLiteFeatures is available to the user
   // and can be called with the new settings object (can be partial).
@@ -155,9 +145,65 @@
     setFeatures()
   }
 
+  const events = {
+    setFeatures: setRefinedTwitterLiteFeatures,
+    refresh: setFeatures
+  }
+
+  window.addEventListener('RefinedTwitterLite', ({ detail }) => {
+    const { type, payload } = detail
+    events[type] && events[type](payload)
+  })
+
   window.addEventListener('beforeunload', () => {
     setRefinedTwitterLiteFeatures(settings)
   })
 
+  window.addEventListener('popstate', () => {
+    setFeatures()
+  })
+
+  injectScript(`
+    window.RefinedTwitterLite = {
+      dispatch: (type, payload) => {
+        window.dispatchEvent(new CustomEvent('RefinedTwitterLite', {
+          detail: {
+            type,
+            payload
+          }
+        }))
+      }
+    }
+
+    RefinedTwitterLite.setFeatures = features => {
+      RefinedTwitterLite.dispatch('setFeatures', features)
+    }
+
+    RefinedTwitterLite.refresh = url => {
+      RefinedTwitterLite.dispatch('refresh', url)
+    }
+
+    {
+      const pushState = history.pushState
+      history.pushState = function () {
+        RefinedTwitterLite.refresh(arguments[2])
+        pushState.apply(history, arguments)
+      }
+      const replaceState = history.replaceState
+      history.replaceState = function () {
+        RefinedTwitterLite.refresh(arguments[2])
+        replaceState.apply(history, arguments)
+      }
+    }
+  `)
+
   setFeatures()
+
+  function injectScript(source) {
+    const { nonce } = document.querySelector('script[nonce]')
+    const script = document.createElement('script')
+    script.nonce = nonce
+    script.textContent = source
+    document.documentElement.appendChild(script)
+  }
 }())
