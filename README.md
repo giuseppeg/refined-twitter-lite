@@ -9,7 +9,7 @@ Small UserScript that adds some UI improvements to Twitter Lite. Totally inspire
 * download `index.user.js`
 * open Chrome
 * go to [`chrome://extensions/`](chrome://extensions/)
-* drag and drop `index.user.js`
+* drag and drop `index.user.js` (make sure chrome extensions is in developer mode)
 * enjoy 🍸
 
 For a comprehensive list of tweaks check the [features page](./FEATURES.md).
