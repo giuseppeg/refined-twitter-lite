@@ -84,8 +84,14 @@
       },
       init: () => {
         let abort = false
-        waitUntil(() => document.querySelector('[data-testid="primaryColumn"]'), 500)
-          .then(timeline => {
+        waitUntil(() => {
+          const elements = document.querySelectorAll('[data-testid="primaryColumn"] time')
+          if (elements.length) {
+            return elements
+          }
+          return false
+        }, 500)
+          .then(timeElements => {
             if (abort) {
               return
             }
@@ -94,7 +100,7 @@
               document.documentElement.getAttribute('lang') === 'en'
                 ? document.title.startsWith('Latest')
                 : [].every.call(
-                    document.querySelectorAll('time'),
+                    timeElements,
                     time => {
                       const currentTime = new Date(time.getAttribute('datetime'))
                       const isChronological = !lastTime || lastTime > currentTime
@@ -104,7 +110,8 @@
                   )
 
             if (!isShowingLatest) {
-              timeline.querySelector('[role="heading"]')
+              document.querySelector('[data-testid="primaryColumn"]')
+                .querySelector('[role="heading"]')
                 .parentNode.parentNode.querySelector('[role="button"]')
                 .click()
 
