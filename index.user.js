@@ -83,8 +83,12 @@
         return pathname === '/' || pathname === '/home'
       },
       init: () => {
+        let abort = false
         waitUntil(() => document.querySelector('[data-testid="primaryColumn"]'), 500)
           .then(timeline => {
+            if (abort) {
+              return
+            }
             let lastTime = null
             const isShowingLatest =
               document.documentElement.getAttribute('lang') === 'en'
@@ -112,7 +116,9 @@
           })
           .catch(noop)
 
-        return noop
+        return () => {
+          abort = true
+        }
       }
     }
   }
