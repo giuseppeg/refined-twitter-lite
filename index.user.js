@@ -1,8 +1,9 @@
 // ==UserScript==
 // @name refined-twitter-lite
 // @description Small UserScript that adds some UI improvements to Twitter Lite
-// @version 0.2.3
-// @match https://*.twitter.com/*
+// @version 0.2.4
+// @match https://twitter.com/*
+// @match https://mobile.twitter.com/*
 // ==/UserScript==
 (function () {
   // Supported features.
@@ -75,6 +76,58 @@
          }
         `
       ]
+    },
+    enforceLatestTweets: {
+      default: true,
+      test: ({ parsedUrl }) => {
+        const { pathname } = parsedUrl
+        return pathname === '/home'
+      },
+      init: () => {
+        let abort = false
+        waitUntil(() => {
+          const elements = document.querySelectorAll('[data-testid="primaryColumn"] time')
+          if (elements.length) {
+            return elements
+          }
+          return false
+        }, 500)
+          .then(timeElements => {
+            if (abort) {
+              return
+            }
+            let lastTime = null
+            const isShowingLatest =
+              document.documentElement.getAttribute('lang') === 'en'
+                ? document.title.startsWith('Latest')
+                : [].every.call(
+                    timeElements,
+                    time => {
+                      const currentTime = new Date(time.getAttribute('datetime'))
+                      const isChronological = !lastTime || lastTime > currentTime
+                      lastTime = currentTime
+                      return isChronological
+                    }
+                  )
+
+            if (!isShowingLatest) {
+              document.querySelector('[data-testid="primaryColumn"]')
+                .querySelector('[role="heading"]')
+                .parentNode.parentNode.querySelector('[role="button"]')
+                .click()
+
+              setTimeout(() =>
+                document.querySelector('[role="menu"] [role="menuitem"]')
+                .click()
+              )
+            }
+          })
+          .catch(noop)
+
+        return () => {
+          abort = true
+        }
+      }
     }
   }
 
@@ -82,7 +135,7 @@
   document.head.insertAdjacentHTML('beforeend', `
     <style>
       ${Object.entries(features).map(([feature, data]) =>
-        data.styles.map(rule =>
+        (data.styles || []).map(rule =>
           rule.split(',').map(rule =>
             `[data-refined-twitter-lite~="${feature}"] ${rule.trim()}`
           ).join(',')
@@ -205,5 +258,20 @@
     script.nonce = nonce
     script.textContent = source
     document.documentElement.appendChild(script)
+  }
+  function noop() {}
+  async function waitUntil(fn, retryTimeout, times = 6) {
+    if (times === 0) {
+      throw new Error("waitUntil: max retry limit reached")
+    }
+    const result = fn()
+    if (result) {
+      if (result instanceof Promise) {
+        return await result
+      }
+      return result
+    }
+    await new Promise(resolve => setTimeout(resolve, retryTimeout))
+    return await waitUntil(fn, retryTimeout, times - 1)
   }
 }())
