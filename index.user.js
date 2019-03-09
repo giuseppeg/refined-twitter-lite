@@ -80,7 +80,7 @@
       default: true,
       test: ({ parsedUrl }) => {
         const { pathname } = parsedUrl
-        return pathname === '/' || pathname === '/home'
+        return pathname === '/home'
       },
       init: () => {
         let abort = false

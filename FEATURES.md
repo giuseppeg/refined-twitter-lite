@@ -1,17 +1,13 @@
 # Refined Twitter Lite
 
-Refined Twitter Lite comes with a set of features that can be enabled or disabled via the global `setRefinedTwitterLiteFeatures` function.
+Refined Twitter Lite comes with a set of features that can be enabled or disabled via the global `RefinedTwitterLite.setFeatures` function.
 
 ```js
-setRefinedTwitterLiteFeatures({
+RefinedTwitterLite.setFeatures({
   hideAvatars: true,
   singleColumn: false,
 })
 ```
-
-Right now this function is only available within the refined-twitter-lite frame.
-
-<img height="300" alt="select the refined-twitter-lite frame to use the setRefinedTwitterLiteFeatures function" src="https://user-images.githubusercontent.com/711311/53285685-c224ea80-3763-11e9-9106-a9933cdb40ca.png">
 
 ## Features
 
@@ -62,3 +58,9 @@ Blurs out user names and handles (e.g. @twitter).
 default: `false`
 
 Hides user names and handles (e.g. @twitter).
+
+### enforceLatestTweets
+
+default: `true`
+
+Enforces "Latest Tweets" in the home timeline. Tweets will be displayed in chronological order.
