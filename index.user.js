@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name refined-twitter-lite
 // @description Small UserScript that adds some UI improvements to Twitter Lite
-// @version 0.2.5
+// @version 0.2.6
 // @match https://twitter.com/*
 // @match https://mobile.twitter.com/*
 // ==/UserScript==
@@ -54,7 +54,10 @@
     hideAvatars: {
       default: false,
       styles: [
-        `[style*="/profile_images/"] { display: none }`
+        `[style*="/profile_images/"] {
+          background-image: none !important;
+          background-color: #f8f8f8;
+        }`
       ]
     },
     obfuscateHandlesAndUserNames: {
