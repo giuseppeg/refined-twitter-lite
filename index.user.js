@@ -86,6 +86,9 @@
       init: () => {
         let abort = false
         waitUntil(() => {
+          if (abort) {
+            throw new Error('aborted')
+          }
           const elements = document.querySelectorAll('[data-testid="primaryColumn"] time')
           if (elements.length) {
             return elements
@@ -111,15 +114,15 @@
                   )
 
             if (!isShowingLatest) {
-              document.querySelector('[data-testid="primaryColumn"]')
-                .querySelector('[role="heading"]')
-                .parentNode.parentNode.querySelector('[role="button"]')
-                .click()
+              let node = document.querySelector('[data-testid="primaryColumn"] [role="heading"]')
+              node = node && node.parentNode.parentNode
+              node = node && node.querySelector('[role="button"]')
+              node && node.click()
 
-              setTimeout(() =>
-                document.querySelector('[role="menu"] [role="menuitem"]')
-                .click()
-              )
+              setTimeout(() => {
+                node = node && document.querySelector('[role="menu"] [role="menuitem"]')
+                node && node.click()
+              })
             }
           })
           .catch(noop)
@@ -237,14 +240,19 @@
     }
 
     {
+      let prevUrl = window.location.pathname
       const pushState = history.pushState
       history.pushState = function () {
-        RefinedTwitterLite.refresh(arguments[2])
+        const url = arguments[2]
+        prevUrl !== url && RefinedTwitterLite.refresh(arguments[2])
+        prevUrl = url
         pushState.apply(history, arguments)
       }
       const replaceState = history.replaceState
       history.replaceState = function () {
-        RefinedTwitterLite.refresh(arguments[2])
+        const url = arguments[2]
+        prevUrl !== url && RefinedTwitterLite.refresh(arguments[2])
+        prevUrl = url
         replaceState.apply(history, arguments)
       }
     }
