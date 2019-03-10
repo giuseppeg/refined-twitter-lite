@@ -131,6 +131,22 @@
           abort = true
         }
       }
+    },
+    isExploreLinkLast: {
+      default: false,
+      styles: [
+        `nav [href="/explore"] {
+            order: 3;
+         }`
+      ]
+    },
+    hideExploreLink: {
+      default: true,
+      styles: [
+        `nav [href="/explore"] {
+            display: none
+         }`
+      ]
     }
   }
 

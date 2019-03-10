@@ -64,3 +64,15 @@ Hides user names and handles (e.g. @twitter).
 default: `true`
 
 Enforces "Latest Tweets" in the home timeline. Tweets will be displayed in chronological order.
+
+### isExploreLinkLast
+
+default: `false`
+
+Moves the "Explore" link to the end of the main navigation bar.
+
+### hideExploreLink
+
+default: `true`
+
+Removes the "Explore" link from the main navigation bar.
