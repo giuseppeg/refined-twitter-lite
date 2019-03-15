@@ -76,3 +76,9 @@ Moves the "Explore" link to the end of the main navigation bar.
 default: `true`
 
 Removes the "Explore" link from the main navigation bar.
+
+### oldTwitterFontsStack
+
+default: `false`
+
+Brings back the old twitter.com fonts stack.

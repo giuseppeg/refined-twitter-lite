@@ -150,6 +150,15 @@
             display: none
          }`
       ]
+    },
+    oldTwitterFontsStack: {
+      default: false,
+      styles: [
+        `.rn-14xgk7a {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            -webkit-font-smoothing: antialiased
+        }`
+      ]
     }
   }
 
