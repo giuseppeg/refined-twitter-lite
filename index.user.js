@@ -16,7 +16,7 @@
       },
       styles: [
         '[data-testid="sidebarColumn"] { display: none }',
-        '.rn-1ye8kvj { min-width: 675px }'
+        '.r-1ye8kvj { min-width: 675px }'
       ]
     },
     composeButtonTextCursor: {
@@ -154,7 +154,7 @@
     oldTwitterFontsStack: {
       default: false,
       styles: [
-        `.rn-14xgk7a {
+        `.r-1qd0xha {
             font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
             -webkit-font-smoothing: antialiased
         }`
