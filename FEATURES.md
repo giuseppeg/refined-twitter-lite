@@ -88,3 +88,9 @@ Brings back the old twitter.com fonts stack.
 default: `true`
 
 Hides some spam like "Who to Follow" from timelines.
+
+### delayTweet
+
+default: `0`
+
+Starts a count down and when reaches 0 sends the tweet that you just composed. It allows to abort tweets. Set this value to a number of choice, greater than `0` to activate this feature. When this feature is active a long press on the tweet button will send the tweet immediately.

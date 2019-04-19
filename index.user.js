@@ -6,6 +6,8 @@
 // @match https://mobile.twitter.com/*
 // ==/UserScript==
 (function () {
+  const isEnglish = (document.documentElement.getAttribute('lang') || '').startsWith('en')
+
   // Supported features.
   // Can optionally define a test function that must return a boolean.
   const features = {
@@ -104,7 +106,7 @@
             }
             let lastTime = null
             const isShowingLatest =
-              document.documentElement.getAttribute('lang') === 'en'
+              isEnglish
                 ? document.title.startsWith('Latest')
                 : [].every.call(
                     timeElements,
@@ -163,12 +165,96 @@
     hideTimelineSpam: {
       default: true,
       styles: [
-        `[data-testid="primaryColumn"] [data-testid="UserCell"],
-         [data-testid="noRightControl"],
-         [href^="/i/related_users"] {
+        `[data-testid="primaryColumn"] [role="region"] [role="heading"]:not([aria-level="1"]),
+         [href^="/i/related_users"],
+         [href="/who_to_follow"] {
             display: none
         }`
       ]
+    },
+    delayTweet: {
+      default: 0,
+      init: () => {
+        const selector = '[data-testid="tweetButton"]'
+        let lastPointerDownEventTime = Date.now()
+        let timeout = null
+        let btn = null
+        let delayBtn = null
+        let tweeting = false
+
+        function findBtn(target) {
+          if (target.matches(selector)) {
+            return target
+          }
+          return target.closest(selector)
+        }
+        function abort() {
+          if (timeout) {
+            timeout = clearTimeout(timeout)
+          }
+          if (!btn) { return }
+          btn.style.display = null
+          if (!delayBtn) { return }
+          btn.parentNode.removeChild(delayBtn)
+          delayBtn = null
+        }
+        function handleEvent(event) {
+          // When programmatically tweeting.
+          if (tweeting || timeout) { return }
+          btn = findBtn(event.target)
+          if (!btn || btn.getAttribute('aria-disabled') === 'true') { return }
+          lastPointerDownEventTime = Date.now()
+          btn.addEventListener('click', event => {
+            // Long press: preserve the default behavior -> tweet
+            if (Date.now() - lastPointerDownEventTime > 500) {
+              return
+            }
+            event.preventDefault()
+            event.stopPropagation()
+            delayBtn = btn.cloneNode(true)
+            delayBtn.style.backgroundColor = '#ca2055'
+            delayBtn.addEventListener('click', abort)
+            const delayBtnTextContainer = [].find.call(
+              delayBtn.querySelectorAll('*'),
+              node => node.childNodes[0].nodeType === 3
+            )
+            btn.style.display = 'none'
+            btn.parentNode.appendChild(delayBtn)
+
+            let countDown = typeof settings.delayTweet !== 'number'
+              ? 10
+              : settings.delayTweet
+            function timer() {
+              if (countDown === -1) {
+                abort()
+                tweeting = true
+                btn.click()
+                tweeting = false
+                btn = null
+                return
+              }
+              if (countDown === 0) {
+                delayBtnTextContainer.textContent = '💥'
+                countDown--
+              } else {
+                delayBtnTextContainer.textContent = isEnglish
+                  ? `Abort ${countDown--}`
+                  : `🕐 ${countDown--}`
+              }
+              timeout = setTimeout(timer, 1000)
+            }
+            timeout = setTimeout(timer)
+          }, { capture: true, once: true })
+        }
+
+        document.addEventListener('pointerdown', handleEvent)
+        return () => {
+          document.removeEventListener('pointerdown', handleEvent)
+          abort()
+          tweeting = false
+          btn = null
+        }
+      }
     }
   }
 
@@ -190,7 +276,7 @@
   let settings = {}
   const storedSettings = JSON.parse(localStorage.getItem(storageKey)) || {}
   settings = Object.keys(features).reduce((settings, feature) => {
-    if (typeof storedSettings[feature] === 'boolean') {
+    if (storedSettings.hasOwnProperty(feature)) {
       settings[feature] = storedSettings[feature]
     } else {
       settings[feature] = features[feature].default
