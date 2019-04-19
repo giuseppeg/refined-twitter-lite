@@ -159,6 +159,16 @@
             -webkit-font-smoothing: antialiased
         }`
       ]
+    },
+    hideTimelineSpam: {
+      default: true,
+      styles: [
+        `[data-testid="primaryColumn"] [data-testid="UserCell"],
+         [data-testid="noRightControl"],
+         [href^="/i/related_users"] {
+            display: none
+        }`
+      ]
     }
   }
 

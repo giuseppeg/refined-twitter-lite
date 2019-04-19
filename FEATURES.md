@@ -82,3 +82,9 @@ Removes the "Explore" link from the main navigation bar.
 default: `false`
 
 Brings back the old twitter.com fonts stack.
+
+### hideTimelineSpam
+
+default: `true`
+
+Hides some spam like "Who to Follow" from timelines.
