@@ -164,9 +164,12 @@
     },
     hideTimelineSpam: {
       default: true,
+      test: ({ parsedUrl }) => {
+        return /^((?!\/following|\/followers|\/followers_you_follow).)*$/.test(parsedUrl.pathname)
+      },
       styles: [
         `[data-testid="primaryColumn"] [role="region"] [role="heading"]:not([aria-level="1"]),
-         [data-testid="primaryColumn"] [role="region"] [data-testid="UserCell"],
+         [data-testid="primaryColumn"] [role="button"][data-testid="UserCell"],
          [href^="/search?q="][href*="&f=user"],
          [href^="/i/related_users"],
          [href="/who_to_follow"] {
