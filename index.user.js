@@ -166,6 +166,8 @@
       default: true,
       styles: [
         `[data-testid="primaryColumn"] [role="region"] [role="heading"]:not([aria-level="1"]),
+         [data-testid="primaryColumn"] [role="region"] [data-testid="UserCell"],
+         [href^="/search?q="][href*="&f=user"],
          [href^="/i/related_users"],
          [href="/who_to_follow"] {
             display: none
