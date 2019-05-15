@@ -260,6 +260,21 @@
           btn = null
         }
       }
+    },
+    highlightMissingAltForImages: {
+      default: true,
+      test: ({ parsedUrl }) => parsedUrl.pathname === '/compose/tweet',
+      styles: [
+        `[href="/compose/tweet/alt_text"] {
+          border-radius: 2px;
+          padding: 0 0.25em;
+          background-color: #ca2055;
+          color: white
+        }`,
+        `[href="/compose/tweet/alt_text"] * {
+          color: white
+        }`
+      ]
     }
   }
 
