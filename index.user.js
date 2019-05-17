@@ -30,7 +30,7 @@
     hideLikeCount: {
       default: false,
       styles: [
-        `[href$="/likes"],
+        `[href$="/likes"][href*="/status/"],
          [data-testid="like"] span,
          [data-testid="unlike"] span {
             display: none
