@@ -17,12 +17,6 @@ default: `true`
 
 Hides the sidebar for every page that has a timeline.
 
-### composeButtonTextCursor
-
-default: `true`
-
-Sets the `cursor: text` when hovering over the _What's happening?_ button (fake input).
-
 ### hideLikeCount
 
 default: `false`
@@ -64,18 +58,6 @@ Hides user names and handles (e.g. @twitter).
 default: `true`
 
 Enforces "Latest Tweets" in the home timeline. Tweets will be displayed in chronological order.
-
-### isExploreLinkLast
-
-default: `false`
-
-Moves the "Explore" link to the end of the main navigation bar.
-
-### hideExploreLink
-
-default: `true`
-
-Removes the "Explore" link from the main navigation bar.
 
 ### oldTwitterFontsStack
 

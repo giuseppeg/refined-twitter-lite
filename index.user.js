@@ -7,25 +7,47 @@
 // ==/UserScript==
 (function () {
   const isEnglish = (document.documentElement.getAttribute('lang') || '').startsWith('en')
+  const state = {}
 
   // Supported features.
   // Can optionally define a test function that must return a boolean.
   const features = {
     singleColumn: {
       default: true,
-      test: ({ parsedUrl }) => {
-        return /^((?!messages|settings).)*$/.test(parsedUrl.pathname)
+      init: () => {
+        if (state.singleColumn) {
+          return noop
+        }
+        injectScript(`
+          {
+            // Don't try this at home.
+            const originalDescriptor = Object.getOwnPropertyDescriptor(window, 'innerWidth')
+            Object.defineProperty(window, 'innerWidth', {
+              ...originalDescriptor,
+              get() {
+                const val = originalDescriptor.get.call(window)
+                if (val < 981) {
+                  return val
+                }
+                return 981
+              }
+            })
+            window.dispatchEvent(new Event('resize'))
+          }
+        `)
+        state.singleColumn = true
+        return noop
       },
-      styles: [
-        '[data-testid="sidebarColumn"] { display: none }',
-        '.r-1ye8kvj { min-width: 675px }'
-      ]
-    },
-    composeButtonTextCursor: {
-      default: true,
-      styles: [
-        `[href="/compose/tweet"] [dir] { cursor: text }`
-      ]
+       styles: [
+         `[data-reactroot] > * > [aria-hidden] {
+            width: 100%;
+            max-width: 691px;
+            margin: 0 auto;
+          }`,
+         `header[role="banner"] { flex: 0 auto }`,
+         `main .r-33ulu8 { width: 691px; max-width: 100%; }`,
+         `main .r-1ye8kvj { max-width: 100% }`
+       ]
     },
     hideLikeCount: {
       default: false,
@@ -136,22 +158,6 @@
           abort = true
         }
       }
-    },
-    isExploreLinkLast: {
-      default: false,
-      styles: [
-        `nav [href="/explore"] {
-            order: 3;
-         }`
-      ]
-    },
-    hideExploreLink: {
-      default: true,
-      styles: [
-        `nav [href="/explore"] {
-            display: none
-         }`
-      ]
     },
     oldTwitterFontsStack: {
       default: false,
@@ -396,6 +402,7 @@
     script.textContent = source
     document.documentElement.appendChild(script)
   }
+
   function noop() {}
   async function waitUntil(fn, retryTimeout, times = 6) {
     if (times === 0) {
