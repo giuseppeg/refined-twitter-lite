@@ -266,6 +266,36 @@
           btn = null
         }
       }
+    },
+    revealHiddenContentOnVKey: {
+      default: true,
+      init: () => {
+        function onKeyDown(event) {
+          if (event.key === 'v' && !isInputField(event.target)) {
+            document.documentElement.setAttribute('data-refined-twitter-lite-shift', '')
+          }
+        }
+        function onKeyUp() {
+          if (document.documentElement.hasAttribute('data-refined-twitter-lite-shift')) {
+            document.documentElement.removeAttribute('data-refined-twitter-lite-shift')
+          }
+        }
+        document.documentElement.addEventListener('keydown', onKeyDown)
+        document.documentElement.addEventListener('keyup', onKeyUp)
+        return () => {
+          document.documentElement.removeAttribute('data-refined-twitter-lite-shift')
+          document.documentElement.removeEventListener('keydown', onKeyDown)
+          document.documentElement.removeEventListener('keyup', onKeyUp)
+        }
+      },
+      affects: new Set([
+        'hideAvatars',
+        'hideTimelineSpam',
+        'hideReplyCount',
+        'hideRetweetCount',
+        'hideLikeCount',
+        'hideHandlesAndUserNames',
+      ])
     }
   }
 
@@ -275,7 +305,14 @@
       ${Object.entries(features).map(([feature, data]) =>
         (data.styles || []).map(rule =>
           rule.split(',').map(rule =>
-            `[data-refined-twitter-lite~="${feature}"] ${rule.trim()}`
+            (
+              (
+                features.revealHiddenContentOnVKey.affects.has(feature)
+                  ? 'html:not([data-refined-twitter-lite-shift])'
+                  : ''
+              ) +
+              `[data-refined-twitter-lite~="${feature}"] ${rule.trim()}`
+            )
           ).join(',')
         ).join('')
       ).join("\n")}
@@ -417,5 +454,12 @@
     }
     await new Promise(resolve => setTimeout(resolve, retryTimeout))
     return await waitUntil(fn, retryTimeout, times - 1)
+  }
+  function isInputField(element) {
+    const tagName = element.ownerDocument.activeElement.tagName
+    return element.isContentEditable || (
+      tagName == 'INPUT' || tagName == 'TEXTAREA' || tagName == 'SELECT' ||
+      tagName == 'BUTTON'
+    )
   }
 }())

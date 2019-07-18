@@ -17,6 +17,19 @@ default: `true`
 
 Hides the sidebar for every page that has a timeline.
 
+### revealHiddenContentOnVKey
+
+default: `true`
+
+When pressing the `v` key reveals the content that has been hidden by the following features:
+
+- hideAvatars
+- hideTimelineSpam
+- hideReplyCount
+- hideRetweetCount
+- hideLikeCount
+- hideHandlesAndUserNames
+
 ### hideLikeCount
 
 default: `false`
