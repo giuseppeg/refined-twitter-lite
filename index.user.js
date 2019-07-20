@@ -141,15 +141,24 @@
                   )
 
             if (!isShowingLatest) {
-              let node = document.querySelector('[data-testid="primaryColumn"] [role="heading"]')
-              node = node && node.parentNode.parentNode
-              node = node && node.querySelector('[role="button"]')
-              node && node.click()
-
-              setTimeout(() => {
-                node = node && document.querySelector('[role="menu"] [role="menuitem"]')
-                node && node.click()
-              })
+              waitUntil(() => {
+                if (abort) {
+                  throw new Error('aborted')
+                }
+                return document.querySelector('[data-testid="primaryColumn"] [role="button"]')
+              }, 500)
+                .then(button => {
+                  button.click()
+                  return waitUntil(() => {
+                    if (abort) {
+                      throw new Error('aborted')
+                    }
+                    return document.querySelector('[role="menu"] [role="menuitem"]')
+                  }, 500)
+                })
+                .then(switchButton => {
+                  switchButton.click()
+                })
             }
           })
           .catch(noop)
@@ -171,7 +180,7 @@
     hideTimelineSpam: {
       default: true,
       test: ({ parsedUrl }) => {
-        return /^((?!\/following|\/followers|\/followers_you_follow).)*$/.test(parsedUrl.pathname)
+        return /^((?!\/following|\/followers|\/followers_you_follow|\/explore).)*$/.test(parsedUrl.pathname)
       },
       styles: [
         `[data-testid="primaryColumn"] [role="region"] [role="heading"]:not([aria-level="1"]),
@@ -290,7 +299,6 @@
       },
       affects: new Set([
         'hideAvatars',
-        'hideTimelineSpam',
         'hideReplyCount',
         'hideRetweetCount',
         'hideLikeCount',
@@ -338,8 +346,7 @@
     initCleanupFunctions.forEach(cleanupFunction => cleanupFunction())
     initCleanupFunctions = []
 
-    const parsedUrl = document.createElement('a')
-    parsedUrl.href = url
+    const parsedUrl = parseUrl(url)
 
     const enabledFeatures = Object.keys(features).filter(feature =>
       settings[feature] &&
@@ -416,14 +423,14 @@
       const pushState = history.pushState
       history.pushState = function () {
         const url = arguments[2]
-        prevUrl !== url && RefinedTwitterLite.refresh(arguments[2])
+        prevUrl !== url && RefinedTwitterLite.refresh(url)
         prevUrl = url
         pushState.apply(history, arguments)
       }
       const replaceState = history.replaceState
       history.replaceState = function () {
         const url = arguments[2]
-        prevUrl !== url && RefinedTwitterLite.refresh(arguments[2])
+        prevUrl !== url && RefinedTwitterLite.refresh(url)
         prevUrl = url
         replaceState.apply(history, arguments)
       }
@@ -461,5 +468,10 @@
       tagName == 'INPUT' || tagName == 'TEXTAREA' || tagName == 'SELECT' ||
       tagName == 'BUTTON'
     )
+  }
+  function parseUrl(url) {
+    const parsedUrl = document.createElement('a')
+    parsedUrl.href = url
+    return parsedUrl
   }
 }())

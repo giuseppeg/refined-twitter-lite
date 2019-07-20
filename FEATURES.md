@@ -24,7 +24,6 @@ default: `true`
 When pressing the `v` key reveals the content that has been hidden by the following features:
 
 - hideAvatars
-- hideTimelineSpam
 - hideReplyCount
 - hideRetweetCount
 - hideLikeCount
