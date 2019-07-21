@@ -117,7 +117,7 @@
             throw new Error('aborted')
           }
           const elements = document.querySelectorAll('[data-testid="primaryColumn"] time')
-          if (elements.length) {
+          if (elements.length && !document.title.includes('"')) {
             return elements
           }
           return false
