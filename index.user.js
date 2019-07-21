@@ -7,7 +7,9 @@
 // ==/UserScript==
 (function () {
   const isEnglish = (document.documentElement.getAttribute('lang') || '').startsWith('en')
-  const state = {}
+  const state = {
+    prevUrl: parseUrl(window.location.href)
+  }
 
   // Supported features.
   // Can optionally define a test function that must return a boolean.
@@ -108,7 +110,7 @@
       default: true,
       test: ({ parsedUrl }) => {
         const { pathname } = parsedUrl
-        return pathname === '/home'
+        return pathname === '/home' && !(/\/status\/.*\/photo\//.test(state.prevUrl.pathname))
       },
       init: () => {
         let abort = false
@@ -368,6 +370,8 @@
         initCleanupFunctions.push(cleanupFunction)
       }
     })
+
+    state.prevUrl = parsedUrl
   }
 
   // Customize/Save settings API
@@ -434,6 +438,9 @@
         prevUrl = url
         replaceState.apply(history, arguments)
       }
+      window.addEventListener('popstate', () => {
+        prevUrl = window.location.pathname + window.location.search + window.location.hash
+      })
     }
   `)
 
