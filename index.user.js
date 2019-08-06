@@ -119,7 +119,7 @@
             throw new Error('aborted')
           }
           const elements = document.querySelectorAll('[data-testid="primaryColumn"] time')
-          if (elements.length && !document.title.includes('"')) {
+          if (elements.length) {
             return elements
           }
           return false
@@ -155,7 +155,7 @@
                     if (abort) {
                       throw new Error('aborted')
                     }
-                    return document.querySelector('[role="menu"] [role="menuitem"]')
+                    return document.querySelector('[role="menu"] [role="button"]')
                   }, 500)
                 })
                 .then(switchButton => {
