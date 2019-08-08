@@ -8,7 +8,7 @@
 (function () {
   const isEnglish = (document.documentElement.getAttribute('lang') || '').startsWith('en')
   const state = {
-    prevUrl: parseUrl(window.location.href)
+    enforceLatestTweetsDisabledManually: false
   }
 
   // Supported features.
@@ -110,17 +110,35 @@
       default: true,
       test: ({ parsedUrl }) => {
         const { pathname } = parsedUrl
-        return pathname === '/home' && !(/\/status\/.*\/photo\//.test(state.prevUrl.pathname))
+        return pathname === '/home' && !state.enforceLatestTweetsDisabledManually
       },
       init: () => {
         let abort = false
+        let titleElements = []
+        function isShowingLatest() {
+          let lastTime = null
+          return (
+            isEnglish
+              ? document.title.startsWith('Latest')
+              : timeElements.every(
+                  time => {
+                    const currentTime = new Date(time.getAttribute('datetime'))
+                    const isChronological = !lastTime || lastTime > currentTime
+                    lastTime = currentTime
+                    return isChronological
+                  }
+                )
+          )
+        }
         waitUntil(() => {
           if (abort) {
             throw new Error('aborted')
           }
+          const link = document.querySelector('link[href$="twitter.com/home"]')
           const elements = document.querySelectorAll('[data-testid="primaryColumn"] time')
-          if (elements.length) {
-            return elements
+          if (link && elements.length) {
+            titleElements = [].slice.call(elements)
+            return titleElements
           }
           return false
         }, 500)
@@ -128,21 +146,8 @@
             if (abort) {
               return
             }
-            let lastTime = null
-            const isShowingLatest =
-              isEnglish
-                ? document.title.startsWith('Latest')
-                : [].every.call(
-                    timeElements,
-                    time => {
-                      const currentTime = new Date(time.getAttribute('datetime'))
-                      const isChronological = !lastTime || lastTime > currentTime
-                      lastTime = currentTime
-                      return isChronological
-                    }
-                  )
 
-            if (!isShowingLatest) {
+            if (!isShowingLatest()) {
               waitUntil(() => {
                 if (abort) {
                   throw new Error('aborted')
@@ -167,6 +172,7 @@
 
         return () => {
           abort = true
+          state.enforceLatestTweetsDisabledManually = timeElements.length > 0 && !isShowingLatest()
         }
       }
     },
@@ -370,8 +376,6 @@
         initCleanupFunctions.push(cleanupFunction)
       }
     })
-
-    state.prevUrl = parsedUrl
   }
 
   // Customize/Save settings API
