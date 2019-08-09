@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name refined-twitter-lite
 // @description Small UserScript that adds some UI improvements to Twitter Lite
-// @version 0.3.1
+// @version 0.3.2
 // @match https://twitter.com/*
 // @match https://mobile.twitter.com/*
 // ==/UserScript==
@@ -114,7 +114,7 @@
       },
       init: () => {
         let abort = false
-        let titleElements = []
+        let timeElements = []
         function isShowingLatest() {
           let lastTime = null
           return (
@@ -137,8 +137,8 @@
           const link = document.querySelector('link[href$="twitter.com/home"]')
           const elements = document.querySelectorAll('[data-testid="primaryColumn"] time')
           if (link && elements.length) {
-            titleElements = [].slice.call(elements)
-            return titleElements
+            timeElements = [].slice.call(elements)
+            return timeElements
           }
           return false
         }, 500)
