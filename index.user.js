@@ -86,6 +86,16 @@
         }`
       ]
     },
+    hideExplore: {
+      default: false,
+      test: ({ parsedUrl }) => {
+        const { pathname } = parsedUrl
+        return pathname === '/explore'
+      },
+      styles: [
+        `[data-testid="primaryColumn"] [role="region"] { display: none }`
+      ]
+    },
     obfuscateHandlesAndUserNames: {
       default: false,
       styles: [
