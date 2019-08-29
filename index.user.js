@@ -170,7 +170,7 @@
                     if (abort) {
                       throw new Error('aborted')
                     }
-                    return document.querySelector('[role="menu"] [role="button"]')
+                    return document.querySelectorAll('[role="menu"] [role="menuitem"], [role="menu"] [role="button"]')[0]
                   }, 500)
                 })
                 .then(switchButton => {
