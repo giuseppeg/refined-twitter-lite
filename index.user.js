@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name refined-twitter-lite
 // @description Small UserScript that adds some UI improvements to Twitter Lite
-// @version 0.3.3
+// @version 0.3.4
 // @match https://twitter.com/*
 // @match https://mobile.twitter.com/*
 // ==/UserScript==
@@ -10,6 +10,7 @@
   const state = {
     enforceLatestTweetsDisabledManually: false
   }
+  let settings = {}
 
   // Supported features.
   // Can optionally define a test function that must return a boolean.
@@ -322,6 +323,26 @@
         'hideLikeCount',
         'hideHandlesAndUserNames',
       ])
+    },
+    dnd: {
+      default: false,
+      test: () => {
+        if (!Array.isArray(settings.dnd)) { return }
+        const nowTimestamp = Date.now()
+        const [start, end] = settings.dnd.map(time => {
+          const [h, m] = time.split(':').map(Number)
+          const t = new Date(nowTimestamp)
+          t.setHours(h)
+          t.setMinutes(m)
+          return t
+        })
+        const now = new Date(nowTimestamp)
+        return now > start && (now < end || end < start)
+      },
+      styles: [
+        `[href="/notifications"] [aria-live="polite"], [href="/messages"] [aria-live="polite"] { display: none }`,
+        `[href="/notifications"] svg, [href="/messages"] svg { opacity: 0.5 }`
+      ]
     }
   }
 
@@ -347,7 +368,6 @@
 
   // Settings are saved to localStorage and merged with the default on load.
   const storageKey = 'refined-twitter-lite'
-  let settings = {}
   const storedSettings = JSON.parse(localStorage.getItem(storageKey)) || {}
   settings = Object.keys(features).reduce((settings, feature) => {
     if (storedSettings.hasOwnProperty(feature)) {

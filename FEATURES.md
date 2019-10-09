@@ -94,3 +94,15 @@ Starts a count down and when reaches 0 sends the tweet that you just composed. I
 default: `false`
 
 Hide recommendations in the /explore page.
+
+### dnd (Do Not Disturb)
+
+default: `false`
+
+When set to a range of times in the form `hh:mm`, disables the notifications and DMs badges.
+
+```js
+RefinedTwitterLite.setFeatures({
+  dnd: ['21:00', '9:30'] // dnd from 21:00 to 9:30 in the morning.
+})
+```
