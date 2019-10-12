@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name refined-twitter-lite
 // @description Small UserScript that adds some UI improvements to Twitter Lite
-// @version 0.3.4
+// @version 0.3.5
 // @match https://twitter.com/*
 // @match https://mobile.twitter.com/*
 // ==/UserScript==
