@@ -337,7 +337,7 @@
           return t
         })
         const now = new Date(nowTimestamp)
-        return now > start && (now < end || end < start)
+        return (now >= start || (start >= end && now <= start && now <= end)) && (now <= end || end <= start)
       },
       styles: [
         `[href="/notifications"] [aria-live="polite"], [href="/messages"] [aria-live="polite"] { display: none }`,
