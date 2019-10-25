@@ -1,6 +1,6 @@
 # Refined Twitter Lite
 
-Refined Twitter Lite comes with a set of features that can be enabled or disabled via the global `RefinedTwitterLite.setFeatures` function.
+Refined Twitter Lite comes with a set of features that can be enabled or disabled using the global `RefinedTwitterLite.setFeatures` function from the browser dev tools' console.
 
 ```js
 RefinedTwitterLite.setFeatures({
