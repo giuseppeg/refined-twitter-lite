@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name refined-twitter-lite
 // @description Small UserScript that adds some UI improvements to Twitter Lite
-// @version 0.3.5
+// @version 0.3.6
 // @match https://twitter.com/*
 // @match https://mobile.twitter.com/*
 // ==/UserScript==
@@ -343,6 +343,52 @@
         `[href="/notifications"] [aria-live="polite"], [href="/messages"] [aria-live="polite"] { display: none }`,
         `[href="/notifications"] svg, [href="/messages"] svg { opacity: 0.5 }`
       ]
+    },
+    pizza: {
+      default: false,
+      init: () => {
+        let link = null
+        let abort = false
+
+        waitUntil(() => {
+          const navLinks = document.querySelectorAll('header nav[role="navigation"] a')
+          if (navLinks.length === 0) { return null }
+          const navLink = Array.from(navLinks).find(
+            link => (link.textContent.trim() === '' && !link.classList.contains('r-13gxpu9'))
+          )
+          return navLink
+        }, 500).then(navLink => {
+          if (abort) {
+            throw new Error('aborted')
+          }
+          link = navLink.cloneNode(true)
+          link.href = 'https://www.reddit.com/r/Pizza/new/'
+          link.setAttribute('aria-label', 'Pizza Subreddit')
+          const svg = link.querySelector('svg')
+          svg.setAttribute('viewBox', '0 0 52 52')
+          svg.style.width = svg.style.height = '25px'
+          svg.style.strokeWidth = '1px'
+          svg.style.stroke = 'rgb(20, 23, 26)'
+          svg.innerHTML = '<g><path d="M47.9,29.6C46,14.4,33.5,2,18.4,0.1c-2.5-0.5-4.3,1.2-4.6,3.2c-0.1,0.9,0.2,1.8,0.7,2.6L4,42.8c-0.1,0.3,0,0.7,0.2,0.9   c0.2,0.2,0.6,0.3,0.9,0.2l9-2.6c-0.2,1.1-0.6,2.2-1.1,3.1c-0.5,1-0.7,2.1-0.5,3.1c0.3,2.1,1.9,3.8,4,4.2c3.3,0.7,6.2-1.8,6.2-5   c0-0.7-0.1-1.4-0.4-2.1c-0.8-1.9-1.3-3.6-1.5-5.3l3.5-1c-0.2,0.6-0.3,1.2-0.6,1.9c-0.2,0.6-0.2,1.3-0.1,1.9   c0.3,1.6,1.6,2.8,3.1,3.1c3.1,0.6,5.5-2.5,4.3-5.4c-0.4-1-0.7-2-0.9-3.3l12-3.4c0.9,0.7,2.3,0.8,2.6,0.7   C46.7,33.9,48.4,32,47.9,29.6z M28.9,35.3c-0.4,0.1-0.7,0.5-0.7,1c0.2,1.7,0.6,3.2,1.1,4.5c0.6,1.5-0.6,3.1-2.3,2.8   c-0.8-0.1-1.5-0.8-1.7-1.6c-0.1-0.4,0-0.7,0.1-1c0.4-1.4,0.7-2.5,1-3.6c0.1-0.3,0-0.6-0.3-0.9c-0.2-0.2-0.6-0.3-0.9-0.2l-5.7,1.6   c-0.4,0.1-0.7,0.5-0.7,0.9c0.1,2.1,0.6,4.3,1.7,6.7c0.2,0.4,0.3,0.9,0.3,1.3c0,2-1.9,3.7-4,3.2c-1.3-0.3-2.3-1.4-2.5-2.7   c-0.1-0.7,0-1.4,0.3-2c0.8-1.6,1.3-3.3,1.5-5.2c0-0.3-0.1-0.6-0.3-0.8c-0.2-0.2-0.6-0.3-0.8-0.2l-8.8,2.5l9.8-34.7   c0.3,0.1,0.5,0.2,1,0.3c12.2,1.4,22.1,11.3,23.5,23.5c0,0.3,0.1,0.7,0.3,1L28.9,35.3z M44.5,32.3c-0.9,0.1-1.7-0.4-2-1.4   c0-0.1,0-0.2-0.1-0.3C41,17.6,30.4,7,17.3,5.5c-0.1,0-0.2,0-0.3-0.1c-0.9-0.3-1.4-1.1-1.3-2c0.1-0.9,0.9-1.8,2.4-1.6   c14.3,1.9,26.1,13.6,27.9,28C46.4,31.4,45.4,32.2,44.5,32.3z"/><path d="M32.6,22.8c-2.6,0-4.7,2.1-4.7,4.7s2.1,4.7,4.7,4.7s4.7-2.1,4.7-4.7S35.3,22.8,32.6,22.8z M32.6,30.5   c-1.6,0-2.9-1.3-2.9-2.9c0-1.6,1.3-2.9,2.9-2.9c1.6,0,2.9,1.3,2.9,2.9C35.5,29.2,34.2,30.5,32.6,30.5z"/><path d="M13.5,31c-1.7,0-3,1.4-3,3s1.4,3,3,3s3-1.4,3-3S15.2,31,13.5,31z M13.5,35.2c-0.6,0-1.2-0.5-1.2-1.2s0.5-1.2,1.2-1.2   c0.6,0,1.2,0.5,1.2,1.2S14.2,35.2,13.5,35.2z"/><path d="M17.6,16.1c-1.9,0-3.5,1.6-3.5,3.5c0,1.9,1.6,3.5,3.5,3.5c1.9,0,3.5-1.6,3.5-3.5C21.1,17.7,19.5,16.1,17.6,16.1z    M17.6,21.2c-0.9,0-1.6-0.7-1.6-1.6c0-0.9,0.7-1.6,1.6-1.6c0.9,0,1.6,0.7,1.6,1.6C19.2,20.5,18.5,21.2,17.6,21.2z"/><path d="M18.1,14.3c0.5,0,0.9-0.4,0.9-0.9c0-1.1,0.9-2,2-2c0.5,0,0.9-0.4,0.9-0.9s-0.4-0.9-0.9-0.9c-2.1,0-3.9,1.7-3.9,3.9   C17.2,13.9,17.6,14.3,18.1,14.3z"/><path d="M26,15.8l1.8-0.9c0.5-0.2,0.6-0.8,0.4-1.2c-0.2-0.5-0.8-0.6-1.2-0.4l-1.8,0.9c-0.5,0.2-0.6,0.8-0.4,1.2   C25,15.9,25.5,16.1,26,15.8z"/><path d="M16.5,26.3l-1.8,0.9c-0.5,0.2-0.6,0.8-0.4,1.2c0.2,0.5,0.8,0.6,1.2,0.4l1.8-0.9c0.5-0.2,0.6-0.8,0.4-1.2   C17.5,26.3,16.9,26.1,16.5,26.3z"/><path d="M22.9,29.9c-0.3-0.4-0.9-0.4-1.3-0.1c-0.4,0.3-0.4,0.9-0.1,1.3l1.3,1.6c0.3,0.4,0.9,0.4,1.3,0.1c0.4-0.3,0.4-0.9,0.1-1.3   L22.9,29.9z"/><path d="M28.3,23.3c0.2-0.5-0.1-1-0.5-1.2l-1.9-0.7c-0.5-0.2-1,0.1-1.2,0.5c-0.2,0.5,0.1,1,0.5,1.2l1.9,0.7   C27.6,24,28.1,23.8,28.3,23.3z"/></g>'
+          link.addEventListener('click', event => {
+            event.preventDefault()
+            const width = Math.max(screen.width / 4, 500)
+            const height = screen.height
+            const left = screen.width - width
+            window.open(link.href, 'Pizza Reddit', `width=${width},height=${height},left=${left}`)
+          })
+          const nav = navLink.parentNode
+          nav.insertBefore(link, nav.children[1])
+        }).catch(noop)
+
+        return () => {
+          abort = true
+          if (link) {
+            link.parentNode.removeChild(link)
+            link = null
+          }
+        }
+      }
     }
   }
 
