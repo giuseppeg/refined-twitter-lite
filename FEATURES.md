@@ -112,3 +112,9 @@ RefinedTwitterLite.setFeatures({
 default: `true`
 
 Adds a search button to your likes page. It'll use TweetDeck's search column, therefore in order for this to work you need to add the Likes column to your TweetDeck columns.
+
+### tryToHideAds
+
+default: `true`
+
+Tries to hide ads.
