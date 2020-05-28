@@ -13,7 +13,8 @@
       "run_at": "document_end",
       "matches": [
         "https://twitter.com/*",
-        "https://mobile.twitter.com/*"
+        "https://mobile.twitter.com/*",
+        "https://tweetdeck.twitter.com/*"
       ],
       "js": [
         "index.user.js"

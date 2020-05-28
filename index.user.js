@@ -10,7 +10,6 @@
   const state = {
     enforceLatestTweetsDisabledManually: false
   }
-  let settings = {}
 
   // Supported features.
   // Can optionally define a test function that must return a boolean.
@@ -395,6 +394,66 @@
         `.RefinedTwitterLite-Pizza > div { background: none !important }`
       ]
     },
+    likesSearch: {
+      default: true,
+      test: ({ parsedUrl }) => {
+        return (parsedUrl.hostname === 'tweetdeck.twitter.com' && parsedUrl.hash === '#ref=rtlLikesSearch') || parsedUrl.pathname.endsWith('/likes')
+      },
+      init: () => {
+        console.log('ok')
+        if (window.location.hash !== '#ref=rtlLikesSearch') {
+          let link
+          function clickHandler(event) {
+            event.preventDefault()
+            const width = 400
+            const height = screen.height
+            window.open(link.href, 'Likes Search', `width=${width},height=${height*0.6},top=${height*0.2},left=${(screen.width-width)/2}`)
+          }
+          waitUntil(() =>
+            document.querySelector('[href="/settings/profile"]') &&
+            document.querySelector('section[role="region"]')
+          , 500).then(container => {
+            link = document.createElement('a')
+            link.href = 'https://tweetdeck.twitter.com/#ref=rtlLikesSearch'
+            link.title = 'Search Likes'
+            link.classList.add('RefinedTwitterLite-likesSearch')
+            link.innerHTML = `<svg viewBox="0 0 24 24" class="r-hkyrab r-4qtqp9 r-yyyyoo r-lwhw9o r-dnmrzs r-bnwqim r-1plcrui r-lrvibr"><g><path d="M21.53 20.47l-3.66-3.66C19.195 15.24 20 13.214 20 11c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c2.215 0 4.24-.804 5.808-2.13l3.66 3.66c.147.146.34.22.53.22s.385-.073.53-.22c.295-.293.295-.767.002-1.06zM3.5 11c0-4.135 3.365-7.5 7.5-7.5s7.5 3.365 7.5 7.5-3.365 7.5-7.5 7.5-7.5-3.365-7.5-7.5z"></path></g></svg>`
+            link.addEventListener('click', clickHandler)
+            container.prepend(link)
+          }).catch(noop)
+
+          return () => {
+            link && link.removeEventListener('click', clickHandler)
+          }
+        }
+
+        waitUntil(() => {
+          return Array.from(document.querySelectorAll('.column'))
+            .find(c => c.querySelector('.column-heading').textContent.trim() === 'Likes')
+        }, 1000)
+          .then(column => {
+            column.scrollIntoViewIfNeeded()
+            column.querySelector('[data-testid="optionsToggle"]').click()
+            const searchBox = Array.from(column.querySelectorAll('.js-accordion-toggle-view')).find(i => i.querySelector('.icon-content'))
+            if (searchBox) {
+              searchBox.click()
+              const searchInput = searchBox.nextElementSibling.querySelector('.js-matching')
+              searchInput && searchInput.focus()
+            }
+          })
+
+        return noop
+      },
+      styles: [
+        '.app-header { display: none }',
+        '.app-content { left: 0 }',
+        `.RefinedTwitterLite-likesSearch {
+          display: flex;
+          padding: 0.5em;
+          justify-content: flex-end;
+        }`
+      ]
+    }
   }
 
   // Generate and append the styles.
@@ -532,7 +591,7 @@
   setFeatures()
 
   function injectScript(source) {
-    const { nonce } = document.querySelector('script[nonce]')
+    const { nonce } = document.querySelector('script[nonce]') || {}
     const script = document.createElement('script')
     script.nonce = nonce
     script.textContent = source

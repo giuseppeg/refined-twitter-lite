@@ -6,7 +6,7 @@ Refined Twitter Lite comes with a set of features that can be enabled or disable
 RefinedTwitterLite.setFeatures({
   hideAvatars: true,
   singleColumn: false,
-})
+});
 ```
 
 ## Features
@@ -103,6 +103,12 @@ When set to a range of times in the form `hh:mm`, disables the notifications and
 
 ```js
 RefinedTwitterLite.setFeatures({
-  dnd: ['21:00', '9:30'] // dnd from 21:00 to 9:30 in the morning.
-})
+  dnd: ["21:00", "9:30"], // dnd from 21:00 to 9:30 in the morning.
+});
 ```
+
+### likesSearch
+
+default: `true`
+
+Adds a search button to your likes page. It'll use TweetDeck's search column, therefore in order for this to work you need to add the Likes column to your TweetDeck columns.
