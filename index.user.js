@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name refined-twitter-lite
 // @description Small UserScript that adds some UI improvements to Twitter Lite
-// @version 0.3.8
+// @version 0.3.9
 // @match https://twitter.com/*
 // @match https://mobile.twitter.com/*
 // ==/UserScript==
@@ -43,7 +43,7 @@
         return noop;
       },
       styles: [
-        `[data-reactroot] > * > [aria-hidden] {
+        `[aria-hidden][data-at-shortcutkeys][style*="min-height"] {
             width: 100%;
             max-width: 691px;
             margin: 0 auto;
@@ -204,12 +204,16 @@
     hideTimelineSpam: {
       default: true,
       test: ({ parsedUrl }) => {
-        return /^((?!\/following|\/followers|\/followers_you_follow|\/explore).)*$/.test(
-          parsedUrl.pathname
+        return (
+          /^((?!\/following|\/followers|\/followers_you_follow|\/explore|\/retweets\/without_comments).)*$/.test(
+            parsedUrl.pathname
+          ) &&
+          (!parsedUrl.search || !parsedUrl.search.includes("f=user"))
         );
       },
       styles: [
-        `[data-testid="primaryColumn"] [role="region"] [role="heading"]:not([aria-level="1"]),
+        `[data-testid="primaryColumn"] a[href^="/i/connect_people"],
+         [data-testid="primaryColumn"] [role="region"] [role="heading"]:not([aria-level="1"]),
          [data-testid="primaryColumn"] [role="button"][data-testid="UserCell"],
          [data-testid="primaryColumn"] [role="region"] [href^="/search?q="][href*="&f=user"],
          [href^="/i/related_users"],
