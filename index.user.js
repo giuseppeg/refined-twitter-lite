@@ -232,42 +232,52 @@
           if (!event.target.matches('[data-testid="fileInput"]')) {
             return;
           }
-          waitUntil(
-            () => document.querySelector('[data-testId="altTextLabel"]'),
-            500
-          ).then((altTextElement) => {
-            state.altTextElementPlaceholder = altTextElement.textContent.trim();
+          waitUntil(() => {
+            const attachments = Array.from(
+              document.querySelectorAll(
+                '[data-testid="attachments"] [aria-label]'
+              )
+            ).filter((e) => e.querySelector("img"));
+            if (!attachments.length) {
+              return false;
+            }
+            state.altTextElementPlaceholder = attachments[0].getAttribute(
+              "aria-label"
+            );
             document.removeEventListener("change", changeHandler);
-          });
+          }, 500).catch(noop);
         }
 
-        if (!state.altTextElementPlaceholder) {
-          document.addEventListener("change", changeHandler, true);
-        }
+        document.addEventListener("change", changeHandler, true);
 
         function handleEvent(event) {
           btn = parent(event.target, selector);
           if (!btn || btn.getAttribute("aria-disabled") === "true") {
             return;
           }
+
           btn.addEventListener(
             "click",
             (event) => {
-              const altTextElement = document.querySelector(
-                '[data-testId="altTextLabel"]'
-              );
+              const attachments = Array.from(
+                document.querySelectorAll(
+                  '[data-testid="attachments"] [aria-label]'
+                )
+              ).filter((e) => e.querySelector("img"));
+
               if (
                 state.altTextElementPlaceholder &&
-                altTextElement &&
-                altTextElement.textContent.trim() ===
-                  state.altTextElementPlaceholder
+                attachments.some(
+                  (a) =>
+                    a.getAttribute("aria-label") ===
+                    state.altTextElementPlaceholder
+                ) &&
+                confirm(
+                  "Some media do not have a description. Do you want to go back and add one before tweeting?"
+                )
               ) {
-                state.altTextMissing = true;
                 event.preventDefault();
                 event.stopPropagation();
-                alert(
-                  "The media does not have a description. Please add it to continue."
-                );
               }
             },
             { capture: true, once: true }
@@ -277,9 +287,7 @@
         document.addEventListener("pointerdown", handleEvent);
         return () => {
           document.removeEventListener("pointerdown", handleEvent);
-          if (!state.altTextElementPlaceholder) {
-            document.removeEventListener("change", changeHandler);
-          }
+          document.removeEventListener("change", changeHandler);
         };
       },
     },

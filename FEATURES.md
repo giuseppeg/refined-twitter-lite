@@ -123,4 +123,4 @@ Tries to hide ads.
 
 default: `true`
 
-Prevents tweeting when the tweet includes an image without a description.
+When the tweet includes an image without a description it asks you if you want to go back and add one. Please consider adding a description to an image to help visually impaired people understand the context of the tweet.
