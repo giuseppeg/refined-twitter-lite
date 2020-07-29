@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name refined-twitter-lite
 // @description Small UserScript that adds some UI improvements to Twitter Lite
-// @version 0.3.10
+// @version 0.3.11
 // @match https://twitter.com/*
 // @match https://mobile.twitter.com/*
 // ==/UserScript==
@@ -222,6 +222,66 @@
             display: none
         }`,
       ],
+    },
+    enforceAltTextForImages: {
+      default: true,
+      init: () => {
+        const selector = '[data-testid^="tweetButton"]';
+
+        function changeHandler(event) {
+          if (!event.target.matches('[data-testid="fileInput"]')) {
+            return;
+          }
+          waitUntil(
+            () => document.querySelector('[data-testId="altTextLabel"]'),
+            500
+          ).then((altTextElement) => {
+            state.altTextElementPlaceholder = altTextElement.textContent.trim();
+            document.removeEventListener("change", changeHandler);
+          });
+        }
+
+        if (!state.altTextElementPlaceholder) {
+          document.addEventListener("change", changeHandler, true);
+        }
+
+        function handleEvent(event) {
+          btn = parent(event.target, selector);
+          if (!btn || btn.getAttribute("aria-disabled") === "true") {
+            return;
+          }
+          btn.addEventListener(
+            "click",
+            (event) => {
+              const altTextElement = document.querySelector(
+                '[data-testId="altTextLabel"]'
+              );
+              if (
+                state.altTextElementPlaceholder &&
+                altTextElement &&
+                altTextElement.textContent.trim() ===
+                  state.altTextElementPlaceholder
+              ) {
+                state.altTextMissing = true;
+                event.preventDefault();
+                event.stopPropagation();
+                alert(
+                  "The media does not have a description. Please add it to continue."
+                );
+              }
+            },
+            { capture: true, once: true }
+          );
+        }
+
+        document.addEventListener("pointerdown", handleEvent);
+        return () => {
+          document.removeEventListener("pointerdown", handleEvent);
+          if (!state.altTextElementPlaceholder) {
+            document.removeEventListener("change", changeHandler);
+          }
+        };
+      },
     },
     delayTweet: {
       default: 0,
@@ -525,65 +585,6 @@
       styles: [
         '[data-testid="primaryColumn"] [data-testid="placementTracking"] article { display: none }',
       ],
-    },
-    enforceAltTextForImages: {
-      default: true,
-      init: () => {
-        const selector = '[data-testid^="tweetButton"]';
-
-        function changeHandler(event) {
-          if (!event.target.matches('[data-testid="fileInput"]')) {
-            return;
-          }
-          waitUntil(
-            () => document.querySelector('[data-testId="altTextLabel"]'),
-            500
-          ).then((altTextElement) => {
-            state.altTextElementPlaceholder = altTextElement.textContent.trim();
-            document.removeEventListener("change", changeHandler);
-          });
-        }
-
-        if (!state.altTextElementPlaceholder) {
-          document.addEventListener("change", changeHandler, true);
-        }
-
-        function handleEvent(event) {
-          btn = parent(event.target, selector);
-          if (!btn || btn.getAttribute("aria-disabled") === "true") {
-            return;
-          }
-          btn.addEventListener(
-            "click",
-            (event) => {
-              const altTextElement = document.querySelector(
-                '[data-testId="altTextLabel"]'
-              );
-              if (
-                state.altTextElementPlaceholder &&
-                altTextElement &&
-                altTextElement.textContent.trim() ===
-                  state.altTextElementPlaceholder
-              ) {
-                event.preventDefault();
-                event.stopPropagation();
-                alert(
-                  "The media does not have a description. Please add it to continue."
-                );
-              }
-            },
-            { capture: true, once: true }
-          );
-        }
-
-        document.addEventListener("pointerdown", handleEvent);
-        return () => {
-          document.removeEventListener("pointerdown", handleEvent);
-          if (!state.altTextElementPlaceholder) {
-            document.removeEventListener("change", changeHandler);
-          }
-        };
-      },
     },
   };
 
