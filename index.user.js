@@ -1,11 +1,12 @@
 // ==UserScript==
 // @name refined-twitter-lite
 // @description Small UserScript that adds some UI improvements to Twitter Lite
-// @version 0.3.9
+// @version 0.3.10
 // @match https://twitter.com/*
 // @match https://mobile.twitter.com/*
 // ==/UserScript==
 (function() {
+  let settings;
   const isEnglish = (
     document.documentElement.getAttribute("lang") || ""
   ).startsWith("en");
@@ -225,19 +226,13 @@
     delayTweet: {
       default: 0,
       init: () => {
-        const selector = '[data-testid="tweetButton"]';
+        const selector = '[data-testid^="tweetButton"]';
         let lastPointerDownEventTime = Date.now();
         let timeout = null;
         let btn = null;
         let delayBtn = null;
         let tweeting = false;
 
-        function findBtn(target) {
-          if (target.matches(selector)) {
-            return target;
-          }
-          return target.closest(selector);
-        }
         function abort() {
           if (timeout) {
             timeout = clearTimeout(timeout);
@@ -257,7 +252,7 @@
           if (tweeting || timeout) {
             return;
           }
-          btn = findBtn(event.target);
+          btn = parent(event.target, selector);
           if (!btn || btn.getAttribute("aria-disabled") === "true") {
             return;
           }
@@ -458,7 +453,6 @@
         );
       },
       init: () => {
-        console.log("ok");
         if (window.location.hash !== "#ref=rtlLikesSearch") {
           let link;
           function clickHandler(event) {
@@ -531,6 +525,65 @@
       styles: [
         '[data-testid="primaryColumn"] [data-testid="placementTracking"] article { display: none }',
       ],
+    },
+    enforceAltTextForImages: {
+      default: true,
+      init: () => {
+        const selector = '[data-testid^="tweetButton"]';
+
+        function changeHandler(event) {
+          if (!event.target.matches('[data-testid="fileInput"]')) {
+            return;
+          }
+          waitUntil(
+            () => document.querySelector('[data-testId="altTextLabel"]'),
+            500
+          ).then((altTextElement) => {
+            state.altTextElementPlaceholder = altTextElement.textContent.trim();
+            document.removeEventListener("change", changeHandler);
+          });
+        }
+
+        if (!state.altTextElementPlaceholder) {
+          document.addEventListener("change", changeHandler, true);
+        }
+
+        function handleEvent(event) {
+          btn = parent(event.target, selector);
+          if (!btn || btn.getAttribute("aria-disabled") === "true") {
+            return;
+          }
+          btn.addEventListener(
+            "click",
+            (event) => {
+              const altTextElement = document.querySelector(
+                '[data-testId="altTextLabel"]'
+              );
+              if (
+                state.altTextElementPlaceholder &&
+                altTextElement &&
+                altTextElement.textContent.trim() ===
+                  state.altTextElementPlaceholder
+              ) {
+                event.preventDefault();
+                event.stopPropagation();
+                alert(
+                  "The media does not have a description. Please add it to continue."
+                );
+              }
+            },
+            { capture: true, once: true }
+          );
+        }
+
+        document.addEventListener("pointerdown", handleEvent);
+        return () => {
+          document.removeEventListener("pointerdown", handleEvent);
+          if (!state.altTextElementPlaceholder) {
+            document.removeEventListener("change", changeHandler);
+          }
+        };
+      },
     },
   };
 
@@ -716,5 +769,11 @@
     const parsedUrl = document.createElement("a");
     parsedUrl.href = url;
     return parsedUrl;
+  }
+  function parent(target, selector) {
+    if (target.matches(selector)) {
+      return target;
+    }
+    return target.closest(selector);
   }
 })();

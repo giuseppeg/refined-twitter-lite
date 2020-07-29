@@ -118,3 +118,9 @@ Adds a search button to your likes page. It'll use TweetDeck's search column, th
 default: `true`
 
 Tries to hide ads.
+
+### enforceAltTextForImages
+
+default: `true`
+
+Prevents tweeting when the tweet includes an image without a description.
