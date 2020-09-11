@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name refined-twitter-lite
 // @description Small UserScript that adds some UI improvements to Twitter Lite
-// @version 0.3.11
+// @version 0.3.12
 // @match https://twitter.com/*
 // @match https://mobile.twitter.com/*
 // ==/UserScript==
@@ -290,6 +290,28 @@
           document.removeEventListener("change", changeHandler);
         };
       },
+    },
+    showAltTextForImagesOnHover: {
+      default: true,
+      styles: [
+        `
+        [data-testid="tweetPhoto"][aria-label]:hover {
+          margin: 0 !important;
+          transition: margin 0.2s ease-in-out;
+        }
+        [data-testid="tweetPhoto"][aria-label]:hover:after {
+          content: attr(aria-label);
+          position: absolute;
+          top: 0;
+          background-color: rgba(0, 0, 0, 0.77);
+          color: #fff;
+          margin: 0.7em;
+          padding: 0.2em;
+          border-radius: 0.2em;
+          font-family: sans-serif;
+        }
+      `,
+      ],
     },
     delayTweet: {
       default: 0,
@@ -604,8 +626,11 @@
       ${Object.entries(features)
         .map(([feature, data]) =>
           (data.styles || [])
-            .map((rule) =>
-              rule
+            .map((rule) => {
+              const index = rule.indexOf("{");
+              const selectors = rule
+                .slice(0, index)
+                .trim()
                 .split(",")
                 .map(
                   (rule) =>
@@ -614,8 +639,10 @@
                       : "") +
                     `[data-refined-twitter-lite~="${feature}"] ${rule.trim()}`
                 )
-                .join(",")
-            )
+                .join(",");
+
+              return selectors + rule.slice(index);
+            })
             .join("")
         )
         .join("\n")}
