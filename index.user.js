@@ -295,20 +295,33 @@
       default: true,
       styles: [
         `
+        [data-testid="tweetPhoto"][aria-label] {
+          transition: margin 0.2s 0s ease-in-out;
+        }
         [data-testid="tweetPhoto"][aria-label]:hover {
           margin: 0 !important;
-          transition: margin 0.2s ease-in-out;
+          transition: margin 0.2s 1s ease-in-out;
         }
-        [data-testid="tweetPhoto"][aria-label]:hover:after {
+        [data-testid="tweetPhoto"][aria-label]:after {
           content: attr(aria-label);
+          opacity: 0;
           position: absolute;
           top: 0;
           background-color: rgba(0, 0, 0, 0.77);
           color: #fff;
+          word-break: break-word;
           margin: 0.7em;
           padding: 0.2em;
           border-radius: 0.2em;
           font-family: sans-serif;
+          transition: opacity 0.2s 0s ease-in-out;
+        }
+        [data-testid="tweetPhoto"][aria-label="Image"]:after {
+          display: none;
+        }
+        [data-testid="tweetPhoto"][aria-label]:hover:after {
+          opacity: 1;
+          transition: opacity 0.2s 1s ease-in-out;
         }
       `,
       ],
