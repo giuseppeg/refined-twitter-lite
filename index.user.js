@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name refined-twitter-lite
 // @description Small UserScript that adds some UI improvements to Twitter Lite
-// @version 0.3.12
+// @version 0.3.16
 // @match https://twitter.com/*
 // @match https://mobile.twitter.com/*
 // ==/UserScript==
@@ -29,14 +29,27 @@
             const originalDescriptor = Object.getOwnPropertyDescriptor(window, 'innerWidth')
             Object.defineProperty(window, 'innerWidth', {
               ...originalDescriptor,
-              get() {
+               get() {
                 const val = originalDescriptor.get.call(window)
+
+                 if (val < 981) {
+                   return val
+                 }
+                 return 981
+               }
+             })
+
+            Object.defineProperty(window.document.documentElement, 'clientWidth', {
+              get() {
+                const val = window.innerWidth
+
                 if (val < 981) {
                   return val
                 }
                 return 981
               }
             })
+
             window.dispatchEvent(new Event('resize'))
           }
         `);
@@ -196,9 +209,8 @@
     oldTwitterFontsStack: {
       default: false,
       styles: [
-        `.r-1qd0xha {
-            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-            -webkit-font-smoothing: antialiased
+        `.r-37j5jr {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
         }`,
       ],
     },
@@ -616,6 +628,76 @@
         '[data-testid="primaryColumn"] [data-testid="placementTracking"] article { display: none }',
       ],
     },
+    strikeThrough: {
+      default: true,
+      test: ({ parsedUrl }) => {
+        const { pathname } = parsedUrl;
+        return pathname === "/compose/tweet";
+      },
+      init: () => {
+        function toggleStrikeThrough(text) {
+          const clean = text.replace(/\u0336/g, "");
+          if (clean.length === text.length / 2) {
+            return clean;
+          }
+          return Array.prototype.reduce.call(
+            clean,
+            (s, c) => (s += c + "\u0336"),
+            ""
+          );
+          window.prompt(
+            "",
+            Array.prototype.reduce.call(
+              window.prompt("Type Something"),
+              (s, c) => (s += c + "\u0336"),
+              ""
+            )
+          );
+        }
+        function onKeyDown(event) {
+          if (event.key !== "x" || !event.metaKey || !event.shiftKey) {
+            return;
+          }
+          const selection = window.getSelection();
+          if (selection.isCollapsed) {
+            return;
+          }
+          const textContent = selection.anchorNode.textContent;
+          selection.anchorNode.textContent =
+            textContent.slice(0, selection.anchorOffset) +
+            toggleStrikeThrough(
+              textContent.slice(selection.anchorOffset, selection.extentOffset)
+            ) +
+            textContent.slice(selection.extentOffset);
+          const keyUpEvent = new Event("change", { bubbles: true });
+          selection.anchorNode.parentElement.dispatchEvent(keyUpEvent);
+        }
+
+        document.addEventListener("keydown", onKeyDown);
+
+        return () => {
+          document.removeEventListener("keydown", onKeyDown);
+        };
+      },
+    },
+    invertedFollowButtonStyle: {
+      default: true,
+      styles: [
+        `[role="button"][data-testid*="-follow"]:not(:hover):not(:focus) {
+          background-color: transparent !important;
+          border: 1px solid
+        }`,
+        `[role="button"][data-testid*="-follow"]:not(:hover):not(:focus) > * {
+          color: currentColor !important;
+        }`,
+        `[role="button"][data-testid*="unfollow"]:not(:hover):not(:focus) {
+          background-color: currentColor;
+        }`,
+        `[role="button"][data-testid*="unfollow"]:not(:hover):not(:focus) > * {
+          filter: invert(1);
+        }`,
+      ],
+    },
   };
 
   // Generate and append the styles.
@@ -795,10 +877,10 @@
     const tagName = element.ownerDocument.activeElement.tagName;
     return (
       element.isContentEditable ||
-      (tagName == "INPUT" ||
-        tagName == "TEXTAREA" ||
-        tagName == "SELECT" ||
-        tagName == "BUTTON")
+      tagName == "INPUT" ||
+      tagName == "TEXTAREA" ||
+      tagName == "SELECT" ||
+      tagName == "BUTTON"
     );
   }
   function parseUrl(url) {

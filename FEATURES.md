@@ -130,3 +130,9 @@ When the tweet includes an image without a description it asks you if you want t
 default: `true`
 
 When hovering images shows its alt text.
+
+### invertedFollowButtonStyle
+
+default: `true`
+
+Restores the old Follow/Unfollow buttons style (inverted).
