@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name refined-twitter-lite
 // @description Small UserScript that adds some UI improvements to Twitter Lite
-// @version 0.3.16
+// @version 0.3.17
 // @match https://twitter.com/*
 // @match https://mobile.twitter.com/*
 // ==/UserScript==
@@ -683,17 +683,20 @@
     invertedFollowButtonStyle: {
       default: true,
       styles: [
-        `[role="button"][data-testid*="-follow"]:not(:hover):not(:focus) {
-          background-color: transparent !important;
-          border: 1px solid
+        `[role="button"][data-testid$="-follow"]:not(:hover):not(:focus) {
+            border: 1px solid;
+            background-color: transparent !important;
         }`,
-        `[role="button"][data-testid*="-follow"]:not(:hover):not(:focus) > * {
-          color: currentColor !important;
+        `.r-14lw9ot[role="button"][data-testid$="-follow"]:not(:hover):not(:focus) {
+           border-color: white;
         }`,
-        `[role="button"][data-testid*="unfollow"]:not(:hover):not(:focus) {
-          background-color: currentColor;
+        `[role="button"][data-testid$="-follow"]:not(:hover):not(:focus) > * {
+          filter: invert(1);
         }`,
-        `[role="button"][data-testid*="unfollow"]:not(:hover):not(:focus) > * {
+        `[role="button"][data-testid$="-unfollow"]:not(:hover):not(:focus) {
+            backdrop-filter: invert(1);
+        }`,
+        `[role="button"][data-testid$="-unfollow"]:not(:hover):not(:focus) > * {
           filter: invert(1);
         }`,
       ],
