@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name refined-twitter-lite
 // @description Small UserScript that adds some UI improvements to Twitter Lite
-// @version 0.3.17
+// @version 0.3.18
 // @match https://twitter.com/*
 // @match https://mobile.twitter.com/*
 // ==/UserScript==
@@ -695,6 +695,7 @@
         }`,
         `[role="button"][data-testid$="-unfollow"]:not(:hover):not(:focus) {
             backdrop-filter: invert(1);
+            border-color: transparent !important;
         }`,
         `[role="button"][data-testid$="-unfollow"]:not(:hover):not(:focus) > * {
           filter: invert(1);
