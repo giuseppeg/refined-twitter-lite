@@ -231,7 +231,7 @@
          [data-testid="primaryColumn"] [role="region"] [href^="/search?q="][href*="&f=user"],
          [href^="/i/related_users"],
          [href="/who_to_follow"],
-         [role="complementary"] {
+         [data-testid="primaryColumn"] [role="complementary"] {
             display: none
         }`,
       ],
