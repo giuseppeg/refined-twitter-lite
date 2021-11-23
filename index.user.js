@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name refined-twitter-lite
 // @description Small UserScript that adds some UI improvements to Twitter Lite
-// @version 0.3.18
+// @version 0.3.19
 // @match https://twitter.com/*
 // @match https://mobile.twitter.com/*
 // ==/UserScript==
@@ -454,6 +454,7 @@
         "hideRetweetCount",
         "hideLikeCount",
         "hideHandlesAndUserNames",
+        "blackAndWhite",
       ]),
     },
     dnd: {
@@ -701,6 +702,10 @@
           filter: invert(1);
         }`,
       ],
+    },
+    blackAndWhite: {
+      default: false,
+      styles: [`body { filter: grayscale(1) }`],
     },
   };
 
