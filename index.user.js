@@ -5,7 +5,7 @@
 // @match https://twitter.com/*
 // @match https://mobile.twitter.com/*
 // ==/UserScript==
-(function() {
+(function () {
   let settings;
   const isEnglish = (
     document.documentElement.getAttribute("lang") || ""
@@ -253,9 +253,8 @@
             if (!attachments.length) {
               return false;
             }
-            state.altTextElementPlaceholder = attachments[0].getAttribute(
-              "aria-label"
-            );
+            state.altTextElementPlaceholder =
+              attachments[0].getAttribute("aria-label");
             document.removeEventListener("change", changeHandler);
           }, 500).catch(noop);
         }
@@ -565,8 +564,9 @@
             window.open(
               link.href,
               "Likes Search",
-              `width=${width},height=${height * 0.6},top=${height *
-                0.2},left=${(screen.width - width) / 2}`
+              `width=${width},height=${height * 0.6},top=${height * 0.2},left=${
+                (screen.width - width) / 2
+              }`
             );
           }
           waitUntil(
@@ -604,9 +604,8 @@
           ).find((i) => i.querySelector(".icon-content"));
           if (searchBox) {
             searchBox.click();
-            const searchInput = searchBox.nextElementSibling.querySelector(
-              ".js-matching"
-            );
+            const searchInput =
+              searchBox.nextElementSibling.querySelector(".js-matching");
             searchInput && searchInput.focus();
           }
         });
@@ -706,6 +705,34 @@
     blackAndWhite: {
       default: false,
       styles: [`body { filter: grayscale(1) }`],
+    },
+    deleteAndFix: {
+      default: true,
+      init: () => {
+        function handleEvent(event) {
+          const btn = parent(event.target, '[data-testid^="tweetButton"]');
+          if (!btn) {
+            return;
+          }
+          const tweetTextarea = document.querySelector(
+            '[data-testid^="tweetTextarea_"]'
+          );
+          if (tweetTextarea) {
+            return;
+          }
+          const tweetText = tweetTextarea.textContent;
+          const now = Date.now();
+          const actual = new Date(now).toISOString();
+          const loose = new Date(now).setSeconds(0, 0).toISOString();
+          const pathname = location.pathname;
+          const isReply = pathname.indexOf("/status/") !== -1;
+        }
+        document.addEventListener("pointerdown", handleEvent);
+
+        return () => {
+          document.removeEventListener("pointerdown", handleEvent);
+        };
+      },
     },
   };
 
