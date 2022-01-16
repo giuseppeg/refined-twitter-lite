@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name refined-twitter-lite
 // @description Small UserScript that adds some UI improvements to Twitter Lite
-// @version 0.3.19
+// @version 0.3.20
 // @match https://twitter.com/*
 // @match https://mobile.twitter.com/*
 // ==/UserScript==
-(function() {
+(function () {
   let settings;
   const isEnglish = (
     document.documentElement.getAttribute("lang") || ""
@@ -253,9 +253,8 @@
             if (!attachments.length) {
               return false;
             }
-            state.altTextElementPlaceholder = attachments[0].getAttribute(
-              "aria-label"
-            );
+            state.altTextElementPlaceholder =
+              attachments[0].getAttribute("aria-label");
             document.removeEventListener("change", changeHandler);
           }, 500).catch(noop);
         }
@@ -565,8 +564,9 @@
             window.open(
               link.href,
               "Likes Search",
-              `width=${width},height=${height * 0.6},top=${height *
-                0.2},left=${(screen.width - width) / 2}`
+              `width=${width},height=${height * 0.6},top=${height * 0.2},left=${
+                (screen.width - width) / 2
+              }`
             );
           }
           waitUntil(
@@ -604,9 +604,8 @@
           ).find((i) => i.querySelector(".icon-content"));
           if (searchBox) {
             searchBox.click();
-            const searchInput = searchBox.nextElementSibling.querySelector(
-              ".js-matching"
-            );
+            const searchInput =
+              searchBox.nextElementSibling.querySelector(".js-matching");
             searchInput && searchInput.focus();
           }
         });
@@ -706,6 +705,63 @@
     blackAndWhite: {
       default: false,
       styles: [`body { filter: grayscale(1) }`],
+    },
+    aCtUaLlY: {
+      default: true,
+      init: () => {
+        let transformed = null;
+        function onKeyDown(event) {
+          if (
+            transformed != null ||
+            event.key !== "f" ||
+            event.meta ||
+            event.shiftKey ||
+            event.ctrlKey
+          ) {
+            return;
+          }
+          let hoveredElement = document.querySelectorAll(":hover");
+          hoveredElement = hoveredElement[hoveredElement.length - 1];
+          if (!hoveredElement) {
+            return;
+          }
+          const tweet = hoveredElement.closest('[data-testid="tweet"]');
+          if (!tweet) {
+            return;
+          }
+          let iter = document.createNodeIterator(tweet, NodeFilter.SHOW_TEXT),
+            textnode;
+
+          transformed = [];
+          // print all text nodes
+          while ((textnode = iter.nextNode())) {
+            const originalValue = textnode.textContent + "";
+            transformed.push([textnode, originalValue]);
+            textnode.textContent = textnode.textContent
+              .split("")
+              .map((c, i) => (i % 2 == 1 ? c.toUpperCase() : c))
+              .join("");
+            console.log({ originalValue, curr: textnode.textContent });
+          }
+        }
+        function onKeyUp(event) {
+          if (transformed == null) {
+            return;
+          }
+          transformed.forEach(([textnode, originalValue]) => {
+            console.log(originalValue);
+            textnode.textContent = originalValue;
+          });
+          transformed = null;
+        }
+        document.addEventListener("keydown", onKeyDown);
+        document.addEventListener("keyup", onKeyUp);
+        return () => {
+          transformed = null;
+          document.removeEventListener("keydown", onKeyDown);
+          document.removeEventListener("keyup", onKeyUp);
+        };
+      },
     },
   };
 
