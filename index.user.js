@@ -230,7 +230,8 @@
          [data-testid="primaryColumn"] [role="button"][data-testid="UserCell"],
          [data-testid="primaryColumn"] [role="region"] [href^="/search?q="][href*="&f=user"],
          [href^="/i/related_users"],
-         [href="/who_to_follow"] {
+         [href="/who_to_follow"],
+         [data-testid="primaryColumn"] [role="complementary"] {
             display: none
         }`,
       ],
