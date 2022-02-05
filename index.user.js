@@ -16,6 +16,18 @@
 
   // Supported features.
   // Can optionally define a test function that must return a boolean.
+  //
+  // name: {
+  //   // must be truthy for the plugin to be enabled
+  //   default: true | false | DefaultValue;
+  //   // optional test to decide if the plugin should be loadede
+  //   test?: (URL) => boolean,
+  //   // optional function to do custom things
+  //   init?: () => CleanUpFunction,
+  //   // styles applied when the plugin is enabled
+  //   styles?: Array<CssRule>
+  // }
+  //
   const features = {
     singleColumn: {
       default: true,
