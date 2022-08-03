@@ -763,6 +763,16 @@
         };
       },
     },
+    enforceDesktopURLs: {
+      default: true,
+      test: () => {
+        return window.location.hostname === "mobile.twitter.com";
+      },
+      init: () => {
+        window.location.replace(`https://twitter.com${window.location.pathname}`);
+        return noop;
+      },
+    },
   };
 
   // Generate and append the styles.
