@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name refined-twitter-lite
 // @description Small UserScript that adds some UI improvements to Twitter Lite
-// @version 0.3.20
+// @version 0.3.21
 // @match https://twitter.com/*
 // @match https://mobile.twitter.com/*
 // ==/UserScript==
@@ -10,9 +10,7 @@
   const isEnglish = (
     document.documentElement.getAttribute("lang") || ""
   ).startsWith("en");
-  const state = {
-    enforceLatestTweetsDisabledManually: false,
-  };
+  const state = {};
 
   // Supported features.
   // Can optionally define a test function that must return a boolean.
@@ -147,74 +145,32 @@
       default: true,
       test: ({ parsedUrl }) => {
         const { pathname } = parsedUrl;
-        return (
-          pathname === "/home" && !state.enforceLatestTweetsDisabledManually
-        );
+        return pathname === "/home";
       },
       init: () => {
         let abort = false;
-        let timeElements = [];
-        function isShowingLatest() {
-          let lastTime = null;
-          return isEnglish
-            ? document.title.startsWith("Latest")
-            : timeElements.every((time) => {
-                const currentTime = new Date(time.getAttribute("datetime"));
-                const isChronological = !lastTime || lastTime > currentTime;
-                lastTime = currentTime;
-                return isChronological;
-              });
-        }
+
         waitUntil(() => {
           if (abort) {
             throw new Error("aborted");
           }
-          const link = document.querySelector('link[href$="twitter.com/home"]');
-          const elements = document.querySelectorAll(
-            '[data-testid="primaryColumn"] time'
+          const links = document.querySelectorAll(
+            '[data-testid="primaryColumn"] nav[role="navigation"] a[href="/home"]'
           );
-          if (link && elements.length) {
-            timeElements = [].slice.call(elements);
-            return timeElements;
-          }
-          return false;
-        }, 500)
-          .then((timeElements) => {
-            if (abort) {
-              return;
-            }
 
-            if (!isShowingLatest()) {
-              waitUntil(() => {
-                if (abort) {
-                  throw new Error("aborted");
-                }
-                return document.querySelector(
-                  '[data-testid="primaryColumn"] [role="button"]'
-                );
-              }, 500)
-                .then((button) => {
-                  button.click();
-                  return waitUntil(() => {
-                    if (abort) {
-                      throw new Error("aborted");
-                    }
-                    return document.querySelectorAll(
-                      '[role="menu"] [role="menuitem"], [role="menu"] [role="button"]'
-                    )[0];
-                  }, 500);
-                })
-                .then((switchButton) => {
-                  switchButton.click();
-                });
-            }
-          })
-          .catch(noop);
+          if (links.length == 0) {
+            return false;
+          }
+
+          if (links[1].getAttribute("aria-selected") === "false") {
+            links[1].click();
+            return links[1];
+          }
+          throw new Error("aborted");
+        }, 500).catch(noop);
 
         return () => {
           abort = true;
-          state.enforceLatestTweetsDisabledManually =
-            timeElements.length > 0 && !isShowingLatest();
         };
       },
     },

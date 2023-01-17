@@ -69,7 +69,7 @@ Hides user names and handles (e.g. @twitter).
 
 default: `true`
 
-Enforces "Latest Tweets" in the home timeline. Tweets will be displayed in chronological order.
+Enforces "Following" (formerly "Latest Tweets") in the home timeline. Tweets will be displayed in chronological order.
 
 ### oldTwitterFontsStack
 
