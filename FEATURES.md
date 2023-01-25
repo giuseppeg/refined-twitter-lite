@@ -136,3 +136,9 @@ When hovering images shows its alt text.
 default: `true`
 
 Restores the old Follow/Unfollow buttons style (inverted).
+
+### enforceDesktopURLs
+
+default: `true`
+
+Redirects Twitter mobile links to the desktop version.
