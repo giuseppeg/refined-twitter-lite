@@ -193,7 +193,7 @@
       default: true,
       test: ({ parsedUrl }) => {
         return (
-          /^((?!\/following|\/followers|\/followers_you_follow|\/explore|\/retweets\/without_comments).)*$/.test(
+          /^((?!\/following|\/followers|\/followers_you_follow|\/explore|\/retweets\/without_comments|\/likes).)*$/.test(
             parsedUrl.pathname
           ) &&
           (!parsedUrl.search || !parsedUrl.search.includes("f=user"))
