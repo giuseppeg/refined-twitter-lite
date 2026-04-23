@@ -29,6 +29,22 @@
   const features = {
     singleColumn: {
       default: true,
+      test: ({ parsedUrl }) => {
+        const { pathname } = parsedUrl;
+
+        if (state.isChat) {
+          // doenst work
+          window.dispatchEvent(new Event('resize'))
+        }
+
+        const isChat = pathname.startsWith('/i/chat')
+        state.isChat = isChat
+
+        if (state.singleColumn && isChat) {
+          return location.replace(parsedUrl.toString())
+        }
+        return !isChat;
+      },
       init: () => {
         if (state.singleColumn) {
           return noop;
@@ -145,7 +161,7 @@
       default: true,
       styles: [
         `header[role="banner"] > div > div > div { justify-content:center }`,
-        ...[/*"Home","Search and explore","Notifications","Direct Messages",*/"Grok",/*"Bookmarks",*/"Communities","Premium","Verified Orgs",/*"Profile"*/].map(buttonName => `header[role="banner"] [aria-label="${buttonName}"] { display:none }`)
+        ...[/*"Home","Search and explore","Notifications","Direct Messages",*/"Grok", "Jobs", /*"Bookmarks",*/"Communities","Premium","Verified Orgs",/*"Profile"*/].map(buttonName => `header[role="banner"] [aria-label="${buttonName}"] { display:none }`)
       ]
     },
     enforceLatestTweets: {
@@ -193,7 +209,7 @@
       default: true,
       test: ({ parsedUrl }) => {
         return (
-          /^((?!\/following|\/followers|\/followers_you_follow|\/explore|\/retweets\/without_comments|\/likes).)*$/.test(
+          /^((?!\/following|\/followers|\/followers_you_follow|\/explore|\/retweets|\/likes).)*$/.test(
             parsedUrl.pathname
           ) &&
           (!parsedUrl.search || !parsedUrl.search.includes("f=user"))
@@ -625,6 +641,7 @@
         (!features[feature].test ||
           features[feature].test({ parsedUrl, title: document.title || "" }))
     );
+
     document.documentElement.setAttribute(
       "data-refined-twitter-lite",
       enabledFeatures.join(" ")
@@ -723,6 +740,7 @@
     script.nonce = nonce;
     script.textContent = source;
     document.documentElement.appendChild(script);
+    return script
   }
 
   function noop() {}
