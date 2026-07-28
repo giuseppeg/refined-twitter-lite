@@ -1,16 +1,17 @@
 {
   "name": "Refined Twitter Lite",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Add UI improvements and new useful features to Twitter Lite",
   "homepage_url": "https://github.com/giuseppeg/refined-twitter-lite",
-  "manifest_version": 2,
-  "minimum_chrome_version": "62",
+  "manifest_version": 3,
+  "minimum_chrome_version": "111",
   "icons": {
     "128": "icon.png"
   },
   "content_scripts": [
     {
       "run_at": "document_end",
+      "world": "MAIN",
       "matches": [
         "https://twitter.com/*",
         "https://mobile.twitter.com/*",

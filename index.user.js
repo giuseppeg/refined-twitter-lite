@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name refined-twitter-lite
 // @description Small UserScript that adds some UI improvements to Twitter Lite
-// @version 0.4.0
+// @version 0.5.0
 // @match https://twitter.com/*
 // @match https://mobile.twitter.com/*
 // ==/UserScript==
@@ -49,36 +49,35 @@
         if (state.singleColumn) {
           return noop;
         }
-        injectScript(`
-          {
-            // Don't try this at home.
-            const originalDescriptor = Object.getOwnPropertyDescriptor(window, 'innerWidth')
-            Object.defineProperty(window, 'innerWidth', {
-              ...originalDescriptor,
-               get() {
-                const val = originalDescriptor.get.call(window)
+        // Don't try this at home.
+        const originalDescriptor = Object.getOwnPropertyDescriptor(
+          window,
+          "innerWidth",
+        );
+        Object.defineProperty(window, "innerWidth", {
+          ...originalDescriptor,
+          get() {
+            const val = originalDescriptor.get.call(window);
 
-                 if (val < 981) {
-                   return val
-                 }
-                 return 981
-               }
-             })
+            if (val < 981) {
+              return val;
+            }
+            return 981;
+          },
+        });
 
-            Object.defineProperty(window.document.documentElement, 'clientWidth', {
-              get() {
-                const val = window.innerWidth
+        Object.defineProperty(window.document.documentElement, "clientWidth", {
+          get() {
+            const val = window.innerWidth;
 
-                if (val < 981) {
-                  return val
-                }
-                return 981
-              }
-            })
+            if (val < 981) {
+              return val;
+            }
+            return 981;
+          },
+        });
 
-            window.dispatchEvent(new Event('resize'))
-          }
-        `);
+        window.dispatchEvent(new Event("resize"));
         state.singleColumn = true;
         return noop;
       },
@@ -593,59 +592,69 @@
     videoDownload: {
       default: true,
       init: () => {
-        injectScript(`
-          if (!window.RefinedTwitterLite.getVideos) {
-            const videos = new Set()
-            const _open = XMLHttpRequest.prototype.open
-            const _send = XMLHttpRequest.prototype.send
+        if (!window.RefinedTwitterLite.getVideos) {
+          const videos = new Set();
+          const _open = XMLHttpRequest.prototype.open;
+          const _send = XMLHttpRequest.prototype.send;
 
-            XMLHttpRequest.prototype.open = function(method, url, ...rest) {
-              this._rtlUrl = url
-              return _open.call(this, method, url, ...rest)
-            }
+          XMLHttpRequest.prototype.open = function (method, url, ...rest) {
+            this._rtlUrl = url;
+            return _open.call(this, method, url, ...rest);
+          };
 
-            XMLHttpRequest.prototype.send = function(...args) {
-              if (this._rtlUrl?.includes('/TweetDetail')) {
-                this.addEventListener('load', function() {
-                  try {
-                    const data = JSON.parse(this.responseText)
-                    const instructions = data?.data?.threaded_conversation_with_injections_v2?.instructions ?? []
-                    for (const i of instructions) {
-                      for (const entry of i?.entries ?? []) {
-                        const result = entry.content?.itemContent?.tweet_results?.result
-                        try {
-                          for (const m of result?.legacy?.entities?.media ?? []) {
-                            if (m.type === 'video') {
-                              const variants = m.video_info.variants.filter(v => v.bit_rate)
-                              const best = variants.reduce((a, b) => a.bit_rate > b.bit_rate ? a : b)
-                              videos.add(best.url)
-                            }
+          XMLHttpRequest.prototype.send = function (...args) {
+            if (this._rtlUrl?.includes("/TweetDetail")) {
+              this.addEventListener("load", function () {
+                try {
+                  const data = JSON.parse(this.responseText);
+                  const instructions =
+                    data?.data?.threaded_conversation_with_injections_v2
+                      ?.instructions ?? [];
+                  for (const i of instructions) {
+                    for (const entry of i?.entries ?? []) {
+                      const result =
+                        entry.content?.itemContent?.tweet_results?.result;
+                      try {
+                        for (const m of result?.legacy?.entities?.media ?? []) {
+                          if (m.type === "video") {
+                            const variants = m.video_info.variants.filter(
+                              (v) => v.bit_rate,
+                            );
+                            const best = variants.reduce((a, b) =>
+                              a.bit_rate > b.bit_rate ? a : b,
+                            );
+                            videos.add(best.url);
                           }
-                        } catch {}
-                        try {
-                          for (const me of result?.article?.article_results?.result?.media_entities ?? []) {
-                            if (me.media_info.__typename === 'ApiVideo') {
-                              const variants = me.media_info.variants.filter(v => v.bit_rate)
-                              const best = variants.reduce((a, b) => a.bit_rate > b.bit_rate ? a : b)
-                              videos.add(best.url)
-                            }
+                        }
+                      } catch {}
+                      try {
+                        for (const me of result?.article?.article_results
+                          ?.result?.media_entities ?? []) {
+                          if (me.media_info.__typename === "ApiVideo") {
+                            const variants = me.media_info.variants.filter(
+                              (v) => v.bit_rate,
+                            );
+                            const best = variants.reduce((a, b) =>
+                              a.bit_rate > b.bit_rate ? a : b,
+                            );
+                            videos.add(best.url);
                           }
-                        } catch {}
-                      }
+                        }
+                      } catch {}
                     }
-                  } catch {}
-                })
-              }
-              return _send.call(this, ...args)
+                  }
+                } catch {}
+              });
             }
+            return _send.call(this, ...args);
+          };
 
-            window.RefinedTwitterLite.getVideos = () => {
-              const list = [...videos]
-              console.log(list.join('\\n'))
-              return list
-            }
-          }
-        `);
+          window.RefinedTwitterLite.getVideos = () => {
+            const list = [...videos];
+            console.log(list.join("\n"));
+            return list;
+          };
+        }
         return noop;
       },
     },
@@ -758,58 +767,50 @@
     setFeatures();
   });
 
-  injectScript(`
-    window.RefinedTwitterLite = {
-      dispatch: (type, payload) => {
-        window.dispatchEvent(new CustomEvent('RefinedTwitterLite', {
+  window.RefinedTwitterLite = {
+    dispatch: (type, payload) => {
+      window.dispatchEvent(
+        new CustomEvent("RefinedTwitterLite", {
           detail: {
             type,
-            payload
-          }
-        }))
-      }
-    }
+            payload,
+          },
+        }),
+      );
+    },
+  };
 
-    RefinedTwitterLite.setFeatures = features => {
-      RefinedTwitterLite.dispatch('setFeatures', features)
-    }
+  RefinedTwitterLite.setFeatures = (features) => {
+    RefinedTwitterLite.dispatch("setFeatures", features);
+  };
 
-    RefinedTwitterLite.refresh = url => {
-      RefinedTwitterLite.dispatch('refresh', url)
-    }
+  RefinedTwitterLite.refresh = (url) => {
+    RefinedTwitterLite.dispatch("refresh", url);
+  };
 
-    {
-      let prevUrl = window.location.pathname
-      const pushState = history.pushState
-      history.pushState = function () {
-        const url = arguments[2]
-        prevUrl !== url && RefinedTwitterLite.refresh(url)
-        prevUrl = url
-        pushState.apply(history, arguments)
-      }
-      const replaceState = history.replaceState
-      history.replaceState = function () {
-        const url = arguments[2]
-        prevUrl !== url && RefinedTwitterLite.refresh(url)
-        prevUrl = url
-        replaceState.apply(history, arguments)
-      }
-      window.addEventListener('popstate', () => {
-        prevUrl = window.location.pathname + window.location.search + window.location.hash
-      })
-    }
-  `);
+  {
+    let prevUrl = window.location.pathname;
+    const pushState = history.pushState;
+    history.pushState = function () {
+      const url = arguments[2];
+      prevUrl !== url && RefinedTwitterLite.refresh(url);
+      prevUrl = url;
+      pushState.apply(history, arguments);
+    };
+    const replaceState = history.replaceState;
+    history.replaceState = function () {
+      const url = arguments[2];
+      prevUrl !== url && RefinedTwitterLite.refresh(url);
+      prevUrl = url;
+      replaceState.apply(history, arguments);
+    };
+    window.addEventListener("popstate", () => {
+      prevUrl =
+        window.location.pathname + window.location.search + window.location.hash;
+    });
+  }
 
   setFeatures();
-
-  function injectScript(source) {
-    const { nonce } = document.querySelector("script[nonce]") || {};
-    const script = document.createElement("script");
-    script.nonce = nonce;
-    script.textContent = source;
-    document.documentElement.appendChild(script);
-    return script;
-  }
 
   function noop() {}
   async function waitUntil(fn, retryTimeout, times = 6) {
