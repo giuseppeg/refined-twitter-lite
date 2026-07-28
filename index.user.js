@@ -34,14 +34,14 @@
 
         if (state.isChat) {
           // doenst work
-          window.dispatchEvent(new Event('resize'))
+          window.dispatchEvent(new Event("resize"));
         }
 
-        const isChat = pathname.startsWith('/i/chat')
-        state.isChat = isChat
+        const isChat = pathname.startsWith("/i/chat");
+        state.isChat = isChat;
 
         if (state.singleColumn && isChat) {
-          return location.replace(parsedUrl.toString())
+          return location.replace(parsedUrl.toString());
         }
         return !isChat;
       },
@@ -161,8 +161,17 @@
       default: true,
       styles: [
         `header[role="banner"] > div > div > div { justify-content:center }`,
-        ...[/*"Home","Search and explore","Notifications","Direct Messages",*/"Grok", "Jobs", /*"Bookmarks",*/"Communities","Premium","Verified Orgs",/*"Profile"*/].map(buttonName => `header[role="banner"] [aria-label="${buttonName}"] { display:none }`)
-      ]
+        ...[
+          /*"Home","Search and explore","Notifications","Direct Messages",*/ "Grok",
+          "Jobs",
+          /*"Bookmarks",*/ "Communities",
+          "Premium",
+          "Verified Orgs" /*"Profile"*/,
+        ].map(
+          (buttonName) =>
+            `header[role="banner"] [aria-label="${buttonName}"] { display:none }`,
+        ),
+      ],
     },
     enforceLatestTweets: {
       default: true,
@@ -178,7 +187,7 @@
             throw new Error("aborted");
           }
           const links = document.querySelectorAll(
-            '[data-testid="primaryColumn"] nav[role="navigation"] a[href="/home"]'
+            '[data-testid="primaryColumn"] nav[role="navigation"] a[href="/home"]',
           );
 
           if (links.length == 0) {
@@ -210,7 +219,7 @@
       test: ({ parsedUrl }) => {
         return (
           /^((?!\/following|\/followers|\/followers_you_follow|\/explore|\/retweets|\/likes).)*$/.test(
-            parsedUrl.pathname
+            parsedUrl.pathname,
           ) &&
           (!parsedUrl.search || !parsedUrl.search.includes("f=user"))
         );
@@ -238,8 +247,8 @@
           waitUntil(() => {
             const attachments = Array.from(
               document.querySelectorAll(
-                '[data-testid="attachments"] [aria-label]'
-              )
+                '[data-testid="attachments"] [aria-label]',
+              ),
             ).filter((e) => e.querySelector("img"));
             if (!attachments.length) {
               return false;
@@ -263,8 +272,8 @@
             (event) => {
               const attachments = Array.from(
                 document.querySelectorAll(
-                  '[data-testid="attachments"] [aria-label]'
-                )
+                  '[data-testid="attachments"] [aria-label]',
+                ),
               ).filter((e) => e.querySelector("img"));
 
               if (
@@ -272,17 +281,17 @@
                 attachments.some(
                   (a) =>
                     a.getAttribute("aria-label") ===
-                    state.altTextElementPlaceholder
+                    state.altTextElementPlaceholder,
                 ) &&
                 confirm(
-                  "Some media do not have a description. Do you want to go back and add one before tweeting?"
+                  "Some media do not have a description. Do you want to go back and add one before tweeting?",
                 )
               ) {
                 event.preventDefault();
                 event.stopPropagation();
               }
             },
-            { capture: true, once: true }
+            { capture: true, once: true },
           );
         }
 
@@ -363,7 +372,7 @@
               delayBtn.addEventListener("click", abort);
               const delayBtnTextContainer = [].find.call(
                 delayBtn.querySelectorAll("*"),
-                (node) => node.childNodes[0].nodeType === 3
+                (node) => node.childNodes[0].nodeType === 3,
               );
               btn.style.display = "none";
               btn.parentNode.appendChild(delayBtn);
@@ -393,7 +402,7 @@
               }
               timeout = setTimeout(timer);
             },
-            { capture: true, once: true }
+            { capture: true, once: true },
           );
         }
 
@@ -413,18 +422,18 @@
           if (event.key === "v" && !isInputField(event.target)) {
             document.documentElement.setAttribute(
               "data-refined-twitter-lite-shift",
-              ""
+              "",
             );
           }
         }
         function onKeyUp() {
           if (
             document.documentElement.hasAttribute(
-              "data-refined-twitter-lite-shift"
+              "data-refined-twitter-lite-shift",
             )
           ) {
             document.documentElement.removeAttribute(
-              "data-refined-twitter-lite-shift"
+              "data-refined-twitter-lite-shift",
             );
           }
         }
@@ -432,7 +441,7 @@
         document.documentElement.addEventListener("keyup", onKeyUp);
         return () => {
           document.documentElement.removeAttribute(
-            "data-refined-twitter-lite-shift"
+            "data-refined-twitter-lite-shift",
           );
           document.documentElement.removeEventListener("keydown", onKeyDown);
           document.documentElement.removeEventListener("keyup", onKeyUp);
@@ -493,14 +502,14 @@
               "Likes Search",
               `width=${width},height=${height * 0.6},top=${height * 0.2},left=${
                 (screen.width - width) / 2
-              }`
+              }`,
             );
           }
           waitUntil(
             () =>
               document.querySelector('[href="/settings/profile"]') &&
               document.querySelector('section[role="region"]'),
-            500
+            500,
           )
             .then((container) => {
               link = document.createElement("a");
@@ -521,13 +530,13 @@
         waitUntil(() => {
           return Array.from(document.querySelectorAll(".column")).find(
             (c) =>
-              c.querySelector(".column-heading").textContent.trim() === "Likes"
+              c.querySelector(".column-heading").textContent.trim() === "Likes",
           );
         }, 1000).then((column) => {
           column.scrollIntoViewIfNeeded();
           column.querySelector('[data-testid="optionsToggle"]').click();
           const searchBox = Array.from(
-            column.querySelectorAll(".js-accordion-toggle-view")
+            column.querySelectorAll(".js-accordion-toggle-view"),
           ).find((i) => i.querySelector(".icon-content"));
           if (searchBox) {
             searchBox.click();
@@ -581,6 +590,65 @@
       default: false,
       styles: [`body { filter: grayscale(1) }`],
     },
+    videoDownload: {
+      default: true,
+      init: () => {
+        injectScript(`
+          if (!window.RefinedTwitterLite.getVideos) {
+            const videos = new Set()
+            const _open = XMLHttpRequest.prototype.open
+            const _send = XMLHttpRequest.prototype.send
+
+            XMLHttpRequest.prototype.open = function(method, url, ...rest) {
+              this._rtlUrl = url
+              return _open.call(this, method, url, ...rest)
+            }
+
+            XMLHttpRequest.prototype.send = function(...args) {
+              if (this._rtlUrl?.includes('/TweetDetail')) {
+                this.addEventListener('load', function() {
+                  try {
+                    const data = JSON.parse(this.responseText)
+                    const instructions = data?.data?.threaded_conversation_with_injections_v2?.instructions ?? []
+                    for (const i of instructions) {
+                      for (const entry of i?.entries ?? []) {
+                        const result = entry.content?.itemContent?.tweet_results?.result
+                        try {
+                          for (const m of result?.legacy?.entities?.media ?? []) {
+                            if (m.type === 'video') {
+                              const variants = m.video_info.variants.filter(v => v.bit_rate)
+                              const best = variants.reduce((a, b) => a.bit_rate > b.bit_rate ? a : b)
+                              videos.add(best.url)
+                            }
+                          }
+                        } catch {}
+                        try {
+                          for (const me of result?.article?.article_results?.result?.media_entities ?? []) {
+                            if (me.media_info.__typename === 'ApiVideo') {
+                              const variants = me.media_info.variants.filter(v => v.bit_rate)
+                              const best = variants.reduce((a, b) => a.bit_rate > b.bit_rate ? a : b)
+                              videos.add(best.url)
+                            }
+                          }
+                        } catch {}
+                      }
+                    }
+                  } catch {}
+                })
+              }
+              return _send.call(this, ...args)
+            }
+
+            window.RefinedTwitterLite.getVideos = () => {
+              const list = [...videos]
+              console.log(list.join('\\n'))
+              return list
+            }
+          }
+        `);
+        return noop;
+      },
+    },
   };
 
   // Generate and append the styles.
@@ -602,17 +670,17 @@
                     (features.revealHiddenContentOnVKey.affects.has(feature)
                       ? "html:not([data-refined-twitter-lite-shift])"
                       : "") +
-                    `[data-refined-twitter-lite~="${feature}"] ${rule.trim()}`
+                    `[data-refined-twitter-lite~="${feature}"] ${rule.trim()}`,
                 )
                 .join(",");
 
               return selectors + rule.slice(index);
             })
-            .join("")
+            .join(""),
         )
         .join("\n")}
     </style>
-  `
+  `,
   );
 
   // Settings are saved to localStorage and merged with the default on load.
@@ -639,12 +707,12 @@
       (feature) =>
         settings[feature] &&
         (!features[feature].test ||
-          features[feature].test({ parsedUrl, title: document.title || "" }))
+          features[feature].test({ parsedUrl, title: document.title || "" })),
     );
 
     document.documentElement.setAttribute(
       "data-refined-twitter-lite",
-      enabledFeatures.join(" ")
+      enabledFeatures.join(" "),
     );
 
     // Features can define an init function that is called every time setFeatures is invoked.
@@ -654,7 +722,7 @@
         const cleanupFunction = feature.init();
         if (typeof cleanupFunction !== "function") {
           throw new Error(
-            "Refined Twitter Lite: the feature.init function must return a cleanup function."
+            "Refined Twitter Lite: the feature.init function must return a cleanup function.",
           );
         }
         initCleanupFunctions.push(cleanupFunction);
@@ -740,7 +808,7 @@
     script.nonce = nonce;
     script.textContent = source;
     document.documentElement.appendChild(script);
-    return script
+    return script;
   }
 
   function noop() {}
