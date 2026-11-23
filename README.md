@@ -21,3 +21,15 @@ As a UserScript:
 * enjoy 🍸
 
 Note that when installing Refined Twitter Lite as a UserScript you will need to update it manually every once a while.
+
+### Development
+
+The extension loads `index.old.js` and `index.new.js` directly. After changing
+either file, reload the extension and refresh the page. Run `node test-entry.js`
+and `node test.js` to check the entry and existing tests.
+
+Run `node build.mjs` to regenerate the standalone `index.user.js` after changing
+the source files. Run `node test-entry.js --userscript` to check that build.
+
+The new X interface is only partially supported; see [features](./FEATURES.md)
+for the current limitations.

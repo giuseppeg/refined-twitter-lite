@@ -1,6 +1,6 @@
 {
   "name": "Refined Twitter Lite",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Add UI improvements and new useful features to Twitter Lite",
   "homepage_url": "https://github.com/giuseppeg/refined-twitter-lite",
   "manifest_version": 3,
@@ -18,7 +18,7 @@
         "https://tweetdeck.twitter.com/*",
         "https://x.com/*"
       ],
-      "js": ["index.user.js"]
+      "js": ["index.old.js", "index.new.js", "entry.js"]
     }
   ]
 }

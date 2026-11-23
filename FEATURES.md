@@ -1,5 +1,15 @@
 # Refined Twitter Lite
 
+**New X interface:** The port is incomplete. It supports single column,
+Following, navigation hiding, Explore hiding, ad hiding, image description
+hover, follow-button styling, and some timeline suggestions. Image-description
+checks and delayed posts support English composer labels. `getVideos()` returns
+observed HLS playlist URLs rather than MP4 URLs.
+
+The avatar, engagement count and name hiding features, V-key reveal, old font
+stack, DND and black-and-white mode apply only to the old interface. Their saved
+settings are retained when switching between versions.
+
 Refined Twitter Lite comes with a set of features that can be enabled or disabled using the global `RefinedTwitterLite.setFeatures` function from the browser dev tools' console.
 
 ```js
@@ -106,12 +116,6 @@ RefinedTwitterLite.setFeatures({
   dnd: ["21:00", "9:30"], // dnd from 21:00 to 9:30 in the morning.
 });
 ```
-
-### likesSearch
-
-default: `true`
-
-Adds a search button to your likes page. It'll use TweetDeck's search column, therefore in order for this to work you need to add the Likes column to your TweetDeck columns.
 
 ### tryToHideAds
 
