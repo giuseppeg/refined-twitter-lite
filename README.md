@@ -2,7 +2,7 @@
 
 A browser extension and userscript that adds small UI improvements to X (formerly Twitter). Inspired by [Refined Twitter](https://github.com/sindresorhus/refined-twitter).
 
-It supports both the old and new X interfaces. Support for the new interface is still incomplete; see the [features page](./FEATURES.md) for details.
+It supports both the old and new X interfaces, with different feature sets. See the [features page](./FEATURES.md) for details.
 
 ## Install
 

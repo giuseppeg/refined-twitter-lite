@@ -1,20 +1,20 @@
 # Refined Twitter Lite
 
-**New X interface:** The port is incomplete. It supports single column,
+**New X interface:** It supports single column,
 Following, navigation hiding, Explore hiding, ad hiding, image description
 hover, follow-button styling, and some timeline suggestions. Image-description
 checks and delayed posts support English composer labels. `getVideos()` returns
 observed HLS playlist URLs rather than MP4 URLs.
 
 The avatar, engagement count and name hiding features, V-key reveal, old font
-stack, DND and black-and-white mode apply only to the old interface. Their saved
-settings are retained when switching between versions.
+stack, DND and black-and-white mode are intentionally available only on the old
+interface. Their saved settings are retained when switching between versions.
 
 Refined Twitter Lite comes with a set of features that can be enabled or disabled using the global `RefinedTwitterLite.setFeatures` function from the browser dev tools' console.
 
 ```js
 RefinedTwitterLite.setFeatures({
-  hideAvatars: true,
+  hideNavigationIcons: true,
   singleColumn: false,
 });
 ```
