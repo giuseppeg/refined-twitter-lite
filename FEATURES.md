@@ -75,6 +75,12 @@ default: `false`
 
 Hides user names and handles (e.g. @twitter).
 
+### hideNavigationIcons
+
+default: `true`
+
+Hides selected navigation items. On the new interface, edit the URL list in `index.new.js` to change which items are hidden.
+
 ### enforceLatestTweets
 
 default: `true`
@@ -140,3 +146,9 @@ When hovering images shows its alt text.
 default: `true`
 
 Restores the old Follow/Unfollow buttons style (inverted).
+
+### videoDownload
+
+default: `true`
+
+Call `RefinedTwitterLite.getVideos()` in the browser console on a post with a video. On the new interface, it returns HLS playlist URLs observed by the browser, which may include videos from other posts and may not appear until playback. The old interface returns video links found in post details.

@@ -1,35 +1,34 @@
 # Refined Twitter Lite
 
-Small UserScript that adds some UI improvements to Twitter Lite. Totally inspired by [Refined Twitter](https://github.com/sindresorhus/refined-twitter).
+A browser extension and userscript that adds small UI improvements to X (formerly Twitter). Inspired by [Refined Twitter](https://github.com/sindresorhus/refined-twitter).
 
-<img height="400" alt="" src="https://user-images.githubusercontent.com/711311/63284988-0c22ff00-c2b5-11e9-8f5b-fd248fa1d1ba.png" role="presentation">
+It supports both the old and new X interfaces. Support for the new interface is still incomplete; see the [features page](./FEATURES.md) for details.
 
-For a comprehensive list of tweaks check the [features page](./FEATURES.md).
+## Install
 
-### install
+### Browser extension
 
-As a Chrome Extension:
+Install [Refined Twitter Lite from the Chrome Web Store](https://chrome.google.com/webstore/detail/refined-twitter-lite/adhbafkkfbonbogdlaebnoegpoogngcc). The store version may not yet include the latest changes in this repository.
 
-* Install the extension from the [Chrome Web Store](https://chrome.google.com/webstore/detail/refined-twitter-lite/adhbafkkfbonbogdlaebnoegpoogngcc)
+To try the local version in Chrome or Brave:
 
-As a UserScript:
+1. Open `chrome://extensions` or `brave://extensions`.
+2. Enable developer mode and choose **Load unpacked**.
+3. Select this repository's folder, then refresh X.
 
-* download `index.user.js`
-* open Chrome
-* go to [`chrome://extensions/`](chrome://extensions/)
-* drag and drop `index.user.js` (make sure chrome extensions is in developer mode)
-* enjoy 🍸
+After changing the extension files, reload the extension on that page and refresh X again.
 
-Note that when installing Refined Twitter Lite as a UserScript you will need to update it manually every once a while.
+### Userscript
 
-### Development
+Install `index.user.js` using a userscript manager. Run `node build.mjs` first if you changed the source files; the standalone userscript does not update itself from them.
 
-The extension loads `index.old.js` and `index.new.js` directly. After changing
-either file, reload the extension and refresh the page. Run `node test-entry.js`
-and `node test.js` to check the entry and existing tests.
+## Development
 
-Run `node build.mjs` to regenerate the standalone `index.user.js` after changing
-the source files. Run `node test-entry.js --userscript` to check that build.
+The extension loads `index.old.js`, `index.new.js` and `entry.js` directly. Run these checks after making changes:
 
-The new X interface is only partially supported; see [features](./FEATURES.md)
-for the current limitations.
+```sh
+node test-entry.js
+node test.js
+```
+
+Run `node build.mjs` to regenerate `index.user.js`, then run `node test-entry.js --userscript` to check the standalone build.
