@@ -13,7 +13,8 @@ let saved = JSON.stringify({ hideAvatars: true, delayTweet: 7, enforceLatestTwee
 let style;
 let timer;
 let confirmation = false;
-const root = { setAttribute() {}, removeAttribute() {} };
+const articles = [];
+const root = { nodeType: 1, closest() { return null; }, setAttribute() {}, removeAttribute() {} };
 const location = { hostname: 'x.com', pathname: '/home', href: 'https://x.com/home' };
 const document = {
   documentElement: root,
@@ -25,6 +26,7 @@ const document = {
     if (selector.includes('data-pinned-timeline')) { return tab; }
     return null;
   },
+  querySelectorAll(selector) { return selector === "article" ? articles : []; },
   addEventListener(name, callback) { (listeners[name] ||= []).push(callback); },
   removeEventListener(name, callback) { listeners[name] = (listeners[name] || []).filter((item) => item !== callback); },
 };
@@ -53,9 +55,10 @@ assert.equal(observers[0].disconnected, true);
 let clicks = 0;
 tab = { getAttribute() { return 'false'; }, click() { clicks++; } };
 assert.equal(clicks, 0);
+const observerCount = observers.length;
 window.RefinedTwitterLite.setFeatures({ enforceLatestTweets: true });
 assert.equal(clicks, 1);
-const followingObserver = observers.at(-1);
+const followingObserver = observers[observerCount];
 followingObserver.callback();
 assert.equal(clicks, 1);
 window.RefinedTwitterLite.setFeatures({ enforceLatestTweets: false });
@@ -145,3 +148,47 @@ assert.equal(button.hidden, true);
 window.RefinedTwitterLite.setFeatures({ delayTweet: 0 });
 assert.equal(button.hidden, false);
 assert.equal(timer, undefined);
+
+// Detect only the ad disclosure in its own post header, including new posts.
+function post(label, disclosureHref, avatarHref, hasMenu = true) {
+  const attributes = new Set();
+  const article = {
+    nodeType: 1,
+    isConnected: true,
+    matches(selector) { return selector === 'article'; },
+    closest(selector) { return selector === 'article' ? article : null; },
+    querySelector() { return { getAttribute() { return avatarHref; } }; },
+    querySelectorAll(selector) { return selector === 'article' ? [] : [link]; },
+    setAttribute(name) { attributes.add(name); },
+    removeAttribute(name) { attributes.delete(name); },
+    hasAttribute(name) { return attributes.has(name); },
+  };
+  const link = {
+    textContent: label,
+    closest() { return article; },
+    getAttribute() { return disclosureHref; },
+    parentElement: { querySelector() { return hasMenu ? {} : null; } },
+  };
+  article.link = link;
+  return article;
+}
+const ad = post('Ad', '/sponsor', '/sponsor');
+const ordinary = post('Ad', '/different', '/author');
+const bodyMention = post('Ad', '/author', '/author', false);
+articles.push(ad, ordinary, bodyMention);
+window.RefinedTwitterLite.setFeatures({ tryToHideAds: true, delayTweet: 0 });
+assert.equal(ad.hasAttribute('data-refined-twitter-lite-ad'), true);
+assert.equal(ordinary.hasAttribute('data-refined-twitter-lite-ad'), false);
+assert.equal(bodyMention.hasAttribute('data-refined-twitter-lite-ad'), false);
+const addedAd = post('Ad', '/second', '/second');
+articles.push(addedAd);
+const adObserver = observers.at(-1);
+adObserver.callback([{ target: root, addedNodes: [addedAd] }]);
+assert.equal(addedAd.hasAttribute('data-refined-twitter-lite-ad'), true);
+addedAd.link.textContent = 'Regular post';
+adObserver.callback([{ target: addedAd, addedNodes: [] }]);
+assert.equal(addedAd.hasAttribute('data-refined-twitter-lite-ad'), false);
+window.RefinedTwitterLite.setFeatures({ tryToHideAds: false });
+assert.equal(adObserver.disconnected, true);
+assert.equal(ad.hasAttribute('data-refined-twitter-lite-ad'), false);
+assert.equal(addedAd.hasAttribute('data-refined-twitter-lite-ad'), false);

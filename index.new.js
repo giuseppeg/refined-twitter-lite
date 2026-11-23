@@ -58,7 +58,60 @@ window.refinedTwitterLiteNew = function () {
     },
     tryToHideAds: {
       default: true,
-      styles: ['article:has([class*="data-ad-disclosure"], [data-ad-disclosure]) { display: none }'],
+      styles: ['article:has([class*="data-ad-disclosure"], [data-ad-disclosure]), article[data-refined-twitter-lite-ad] { display: none }'],
+      init() {
+        const hidden = new Set();
+
+        // Match the ad label in the post header, not text in the post itself.
+        function check(article) {
+          const avatar = article.querySelector("[data-post-avatar] a");
+          const isAd = [...article.querySelectorAll('[class*="@container/post-actions"] > div > a')].some((link) =>
+            link.closest("article") === article &&
+            link.textContent.trim() === "Ad" &&
+            link.parentElement.querySelector('button[data-slot="xds-menu-trigger"]') &&
+            avatar && link.getAttribute("href") === avatar.getAttribute("href"),
+          );
+          if (isAd) {
+            article.setAttribute("data-refined-twitter-lite-ad", "");
+            hidden.add(article);
+          } else if (hidden.has(article)) {
+            article.removeAttribute("data-refined-twitter-lite-ad");
+            hidden.delete(article);
+          }
+        }
+
+        document.querySelectorAll("article").forEach(check);
+        const observer = new MutationObserver((mutations) => {
+          const articles = new Set();
+          for (const mutation of mutations) {
+            const target = mutation.target.nodeType === 1 ? mutation.target : mutation.target.parentElement;
+            const article = target?.closest("article");
+            if (article) {
+              articles.add(article);
+            }
+            for (const node of mutation.addedNodes) {
+              if (node.nodeType === 1) {
+                if (node.matches("article")) {
+                  articles.add(node);
+                }
+                node.querySelectorAll("article").forEach((item) => articles.add(item));
+              }
+            }
+          }
+          for (const article of hidden) {
+            if (!article.isConnected) {
+              article.removeAttribute("data-refined-twitter-lite-ad");
+              hidden.delete(article);
+            }
+          }
+          articles.forEach(check);
+        });
+        observer.observe(document.documentElement, { childList: true, characterData: true, attributes: true, attributeFilter: ["href", "class"], subtree: true });
+        return function () {
+          observer.disconnect();
+          hidden.forEach((article) => article.removeAttribute("data-refined-twitter-lite-ad"));
+        };
+      },
     },
     invertedFollowButtonStyle: {
       default: true,

@@ -8,9 +8,7 @@ It supports the new X interface. See the [features page](./FEATURES.md) for avai
 
 ### Browser extension
 
-Install [Refined Twitter Lite from the Chrome Web Store](https://chrome.google.com/webstore/detail/refined-twitter-lite/adhbafkkfbonbogdlaebnoegpoogngcc). The store version may not yet include the latest changes in this repository.
-
-To try the local version in Chrome or Brave:
+To install locally in Chrome or Brave:
 
 1. Open `chrome://extensions` or `brave://extensions`.
 2. Enable developer mode and choose **Load unpacked**.
