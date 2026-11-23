@@ -2,7 +2,7 @@
 
 A browser extension and userscript that adds small UI improvements to X (formerly Twitter). Inspired by [Refined Twitter](https://github.com/sindresorhus/refined-twitter).
 
-It supports both the old and new X interfaces, with different feature sets. See the [features page](./FEATURES.md) for details.
+It supports the new X interface. See the [features page](./FEATURES.md) for available features and their limits.
 
 ## Install
 
@@ -32,3 +32,9 @@ node test.js
 ```
 
 Run `node build.mjs` to regenerate `index.user.js`, then run `node test-entry.js --userscript` to check the standalone build.
+
+## Old X interface
+
+The extension also supports the previous X interface, with some additional
+features listed in the [old interface section](./FEATURES.md#old-x-interface).
+It selects the matching implementation automatically.
